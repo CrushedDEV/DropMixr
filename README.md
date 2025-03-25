@@ -30,18 +30,33 @@
 ### Requisitos previos:
 Asegúrate de tener instalados los siguientes componentes:
 
-- [PHP](https://www.php.net/downloads.php) (versiones 8.0 o superior recomendadas)
-- [Composer](https://getcomposer.org/download/)
-- [Node.js](https://nodejs.org/)
-- [npm](https://www.npmjs.com/get-npm) o [yarn](https://classic.yarnpkg.com/en/docs/install)
-- [MySQL](https://dev.mysql.com/downloads/installer/)
-
+- [PHP](https://www.php.net/downloads.php) (versiones 8.4.1 o superior recomendadas)
+- [Composer](https://getcomposer.org/download/) (version 2.8.3)
+- [Node.js](https://nodejs.org/) (v22.14.0)
+- [npm](https://www.npmjs.com/get-npm) (v10.9.2)
 ### Pasos para iniciar el proyecto:
 
 1. Clona este repositorio en tu máquina local e inicia el proyecto:
    ```bash
    git clone https://github.com/tu_usuario/dropmix.git
    cd dropmix
-   composer run dev
     ```
-   
+2. Instala dependecias:
+      ```bash
+      npm install
+      npm audit fix
+      composer install
+      ```
+3. Ejecutar migraciones y las opciones que nos salgan le damos a que si:
+       ```bash
+   php artisan migrate
+       ```
+4. Generar .env:
+       ```bash
+   cp .env.example .env
+   php artisan key:generate
+       ```
+6. Iniciar proyecto
+       ```bash
+   composer run dev
+       ```

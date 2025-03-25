@@ -5,7 +5,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\HomeController;
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
+    return Inertia::render('HomePage');
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -15,7 +15,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 
-Route::get('/', [HomeController::class, 'index']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

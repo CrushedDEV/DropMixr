@@ -18,11 +18,10 @@ createInertiaApp({
         root.render(<App {...props} />);
     },
     progress: {
-        color: '#ff0000', // Aquí cambia el color de la barra de progreso
+        color: '#008ad8', // Aquí cambia el color de la barra de progreso
     },
 });
 
-// Inicia y detiene la barra de progreso al cambiar de página
 const { on } = require('@inertiajs/react').router;
 
 on('start', () => NProgress.start());

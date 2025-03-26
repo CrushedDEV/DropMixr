@@ -2,23 +2,14 @@ import { Head } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { UsersIcon, MusicIcon, HeartIcon } from "lucide-react";
+import Header from "@/components/header";
 
 export default function About() {
   return (
     <>
       <Head title="Sobre Nosotros" />
       <div className="bg-gradient-to-b from-black via-gray-900 to-black text-white min-h-screen font-sans">
-        <header className="fixed top-0 left-0 w-full backdrop-blur-md bg-black/50 text-white p-4 flex justify-between items-center z-50">
-          <h1 className="text-2xl font-bold">DropMix</h1>
-          <nav>
-            <ul className="flex gap-4">
-              <li><a href="/" className="hover:text-pink-500">Inicio</a></li>
-              <li><a href="/explore" className="hover:text-pink-500">Explorar</a></li>
-              <li><a href="/about" className="hover:text-pink-500">Sobre Nosotros</a></li>
-            </ul>
-          </nav>
-        </header>
-
+        <Header />
         <main className="pt-24 px-6">
           <section className="flex flex-col lg:flex-row items-center justify-between py-24">
             <div className="lg:w-1/2 text-center lg:text-left">

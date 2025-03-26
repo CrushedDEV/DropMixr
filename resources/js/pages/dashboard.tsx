@@ -1,33 +1,32 @@
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
+import MashupCard from '@/components/mashup-card'; // Componente para mostrar cada mashup
+import { useState, useEffect } from 'react';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-];
+export default function Explore() {
+    const [mashups, setMashups] = useState([]);
 
-export default function Dashboard() {
+    useEffect(() => {
+        // Simulación de una llamada a la API para obtener los mashups
+        fetch('/api/mashups')
+            .then((response) => response.json())
+            .then((data) => setMashups(data))
+            .catch((error) => console.error('Error fetching mashups:', error));
+    }, []);
+
     return (
-        <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
-            <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
-                <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                </div>
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
-                    <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+        <AppLayout>
+            <Head title="Explore Mashups" />
+            <div className="container mx-auto px-4 py-8">
+                <h1 className="text-4xl font-bold mb-6">Explore Mashups</h1>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {mashups.length > 0 ? (
+                        mashups.map((mashup) => (
+                            <MashupCard key={mashup.id} mashup={mashup} />
+                        ))
+                    ) : (
+                        <p className="text-gray-500">No mashups available at the moment.</p>
+                    )}
                 </div>
             </div>
         </AppLayout>

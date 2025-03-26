@@ -14,6 +14,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 });
 
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('explore', function () {
+        return Inertia::render('explore');
+    })->name('explore');
+});
+
+
 Route::get('/about', function () {
     return Inertia::render('about');
 })->name('about');

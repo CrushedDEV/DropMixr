@@ -10,15 +10,15 @@ export default function Explore() {
   const [genre, setGenre] = useState('');
   const [sortOrder, setSortOrder] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const itemsPerPage = 16;
 
   // Simulando un array de beats
-  const beats = [...Array(30)].map((_, index) => ({
+  const beats = [...Array(300)].map((_, index) => ({
     id: index + 1,
     user: `Usuario #${index + 1}`,
     bpm: 120 + (index % 10) * 5,
     tonalidad: index % 2 === 0 ? 'C' : 'Am',
-    image: `https://via.placeholder.com/350x150?text=Mashup+${index + 1}`,
+    image: `https://picsum.photos/seed/${index + 1}/500/500`,
     audio: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3`
   }));
 

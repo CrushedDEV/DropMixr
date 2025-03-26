@@ -27,7 +27,7 @@ export default function About() {
                 DropMix es una comunidad creada por y para DJs y productores. Nuestra misión es proporcionar un espacio donde compartir, descubrir y colaborar en mashups, versiones extendidas y más.
               </p>
             </div>
-            <img src="https://picsum.photos/600/400" alt="Comunidad de DJs" className="lg:w-1/2 rounded-lg shadow-lg" />
+            <img src="images/about/photo1.jpg" alt="Comunidad de DJs" className="lg:w-1/2 rounded-lg shadow-lg" />
           </section>
 
           <section className="flex flex-col lg:flex-row-reverse items-center justify-between py-24 bg-gray-800 px-6">
@@ -37,7 +37,7 @@ export default function About() {
                 En DropMix, la colaboración es la clave. Para poder descargar mashups de otros artistas, primero debes contribuir con tus propias creaciones. Esto garantiza que la plataforma se mantenga siempre fresca y llena de contenido de calidad.
               </p>
             </div>
-            <img src="https://picsum.photos/600/401" alt="Funcionamiento" className="lg:w-1/2 rounded-lg shadow-lg" />
+            <img src="images/about/photo2.jpg" alt="Funcionamiento" className="lg:w-1/2 rounded-lg shadow-lg" />
           </section>
 
           <section className="flex flex-col items-center justify-between py-24 px-6">
@@ -45,7 +45,7 @@ export default function About() {
             <p className="text-lg mb-8 text-gray-300 max-w-3xl text-center">
               Creemos en la colaboración, la accesibilidad y la innovación. Buscamos ofrecer a los DJs herramientas de alta calidad sin barreras, promoviendo la creatividad y el crecimiento profesional de nuestra comunidad.
             </p>
-            <img src="https://picsum.photos/600/402" alt="Valores" className="w-full max-w-lg rounded-lg shadow-lg" />
+            <img src="images/about/photo3.jpg" alt="Valores" className="w-full max-w-lg rounded-lg shadow-lg" />
           </section>
 
           <section className="flex flex-col lg:flex-row items-center justify-between py-24 bg-gray-800 px-6">
@@ -55,7 +55,7 @@ export default function About() {
                 Crear una de las mayores bibliotecas de mashups y recursos DJ, permitiendo a artistas de todo el mundo acceder a herramientas de calidad sin coste alguno, fomentando la cultura del remix y la creatividad musical.
               </p>
             </div>
-            <img src="https://picsum.photos/600/403" alt="Visión" className="lg:w-1/2 rounded-lg shadow-lg" />
+            <img src="images/about/photo4.jpg" alt="Visión" className="w-1/3 rounded-lg shadow-lg" />
           </section>
 
           <section className="flex flex-col items-center justify-between py-24 px-6">
@@ -71,11 +71,11 @@ export default function About() {
           <section className="flex flex-col items-center justify-between py-24 bg-gray-800 px-6">
             <h2 className="text-4xl font-semibold mb-6 text-pink-500">Sobre el Creador</h2>
             <Card className="bg-gray-900 text-white p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
-              <img src="https://picsum.photos/200/200" alt="Creador" className="w-32 h-32 rounded-full mx-auto mb-4" />
-              <h3 className="text-2xl font-bold">DJ & Desarrollador</h3>
-              <p className="text-gray-400 mb-4">Apasionado por la música y la tecnología, buscando conectar a la comunidad DJ con herramientas innovadoras.</p>
-              <Button className="bg-pink-500 text-white hover:bg-pink-700 px-4 py-2 text-lg font-bold rounded-lg">
-                Conectar
+              <img src="images/about/photo5.jpg" alt="Creador" className="h-3/5 rounded-full mx-auto mb-4" />
+              <h3 className="text-2xl font-bold">crusheed</h3>
+              <p className="text-gray-400 mb-4">Dj y desarrolador, buscando conectar a la comunidad DJ con herramientas innovadoras.</p>
+              <Button className="bg-pink-500 text-white hover:bg-pink-700 px-4 py-2 text-lg font-bold rounded-lg" onClick={() => window.open('https://www.instagram.com/crushed_dj/', '_blank')}>
+                    Conectar
               </Button>
             </Card>
           </section>

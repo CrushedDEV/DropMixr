@@ -1,18 +1,33 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Head } from '@inertiajs/react';
-import BeatCard from '@/components/BeatCard';  // Importamos el nuevo componente BeatCard
+import { Head, useForm } from '@inertiajs/react';
+import BeatCard from '@/components/BeatCard';
 
 export default function Explore() {
   const [searchTerm, setSearchTerm] = useState('');
   const [genre, setGenre] = useState('');
   const [sortOrder, setSortOrder] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const profileRef = useRef(null);
   const itemsPerPage = 16;
+  const { post } = useForm();
 
-  // Simulando un array de beats
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const beats = [...Array(300)].map((_, index) => ({
     id: index + 1,
     user: `Usuario #${index + 1}`,
@@ -24,155 +39,75 @@ export default function Explore() {
 
   const totalPages = Math.ceil(beats.length / itemsPerPage);
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (page) => {
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
   };
 
-  const handlePlayPause = (index: number) => {
-    const audio = document.getElementById(`audio-${index}`) as HTMLAudioElement;
-    if (audio.paused) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
-  // Paginación: mostrar solo los beats correspondientes a la página actual
+  const handleLogout = () => {
+    setIsLoggingOut(true);
+    setTimeout(() => {
+      post('/logout');
+    }, 1500);
+  };
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentBeats = beats.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white font-sans">
+    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white font-sans relative">
       <Head title="Explorar Beats" />
 
-      {/* Sidebar */}
-      <div className="fixed top-0 left-0 h-full w-64 bg-gray-800 text-white p-6 z-50">
-        <h1 className="text-2xl font-bold mb-10">DropMix</h1>
-        <nav className="space-y-6">
-          <ul className="flex flex-col space-y-4">
-            <li>
-              <a href="/" className="hover:text-pink-500">Inicio</a>
-            </li>
-            <li>
-              <a href="/explore" className="hover:text-pink-500">Explorar</a>
-            </li>
-            <li>
-              <a href="/about" className="hover:text-pink-500">Sobre Nosotros</a>
-            </li>
-          </ul>
-          <div className="mt-10">
-            <h2 className="text-lg font-semibold mb-4">Filtros</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Género</label>
-                <select
-                  value={genre}
-                  onChange={(e) => setGenre(e.target.value)}
-                  className="bg-gray-700 text-white p-2 rounded-md w-full"
-                >
-                  <option value="">Todos</option>
-                  <option value="reggaeton">Reguetón</option>
-                  <option value="hip-hop">Hip-Hop</option>
-                  <option value="electronic">Electrónica</option>
-                  <option value="pop">Pop</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Ordenar por</label>
-                <select
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
-                  className="bg-gray-700 text-white p-2 rounded-md w-full"
-                >
-                  <option value="newest">Más Nuevos</option>
-                  <option value="popular">Más Populares</option>
-                  <option value="best-rated">Mejor Valorados</option>
-                </select>
-              </div>
-            </div>
+      <div className="fixed top-0 left-0 h-full w-64 bg-gray-800 text-white p-6 z-50 flex flex-col justify-between">
+        <div>
+          <h1 className="text-2xl font-bold mb-10">DropMix</h1>
+          <nav className="space-y-6">
+            <ul className="flex flex-col space-y-4">
+              <li><a href="/" className="hover:text-pink-500">Inicio</a></li>
+              <li><a href="/explore" className="hover:text-pink-500">Explorar</a></li>
+              <li><a href="/about" className="hover:text-pink-500">Sobre Nosotros</a></li>
+            </ul>
+          </nav>
+        </div>
+        <div className="mt-auto relative" ref={profileRef}>
+          <div 
+            className="flex items-center space-x-3 cursor-pointer hover:opacity-80 p-2 rounded-lg bg-gray-700" 
+            onClick={toggleMenu}>
+            <img src="https://via.placeholder.com/40" alt="Usuario" className="w-10 h-10 rounded-full" />
+            <span className="text-white">Usuario</span>
           </div>
-        </nav>
+          {isMenuOpen && (
+            <div className="absolute bottom-full mb-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg animate-fade-in">
+              <ul className="py-2">
+                <li className="px-4 py-2 hover:bg-gray-700 cursor-pointer">Perfil</li>
+                <li className="px-4 py-2 hover:bg-red-600 cursor-pointer" onClick={handleLogout}>Cerrar Sesión</li>
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Main Content */}
       <div className="ml-64 p-6">
-        <div className="flex justify-between mb-8">
-          <div className="flex items-center">
-            <h2 className="text-3xl font-semibold text-white">Explora los mejores Beats</h2>
-            <Button className="ml-4 bg-indigo-600 text-white hover:bg-indigo-700">
-              Subir Beat
-            </Button>
-          </div>
-          <div className="flex gap-4">
-            <Input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar Beats"
-              className="bg-gray-800 text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-600"
-            />
-            <Button className="bg-indigo-600 text-white hover:bg-indigo-700">
-              Buscar
-            </Button>
-          </div>
-        </div>
-
-        {/* Beats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <h2 className="text-3xl font-semibold text-white mb-8">Explora los mejores Beats</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md-grid-cols-3 lg:grid-cols-4 gap-8">
           {currentBeats.map((beat, index) => (
-            <BeatCard
-              key={beat.id}
-              id={beat.id}
-              user={beat.user}
-              bpm={beat.bpm}
-              tonalidad={beat.tonalidad}
-              image={beat.image}
-              audio={beat.audio}
-              onPlayPause={handlePlayPause}
-              index={index}
-            />
+            <BeatCard key={beat.id} id={beat.id} user={beat.user} bpm={beat.bpm} tonalidad={beat.tonalidad} image={beat.image} audio={beat.audio} index={index} />
           ))}
         </div>
-
-        {/* Pagination */}
-        <Pagination className="mt-8">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => handlePageChange(currentPage > 1 ? currentPage - 1 : 1)}
-                href="#"
-                disabled={currentPage === 1}
-              />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" onClick={() => handlePageChange(1)}>
-                1
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" onClick={() => handlePageChange(currentPage + 1)}>
-                {currentPage + 1}
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext
-                onClick={() => handlePageChange(currentPage + 1)}
-                href="#"
-                disabled={currentPage >= totalPages}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 text-center border-t border-gray-700 mt-12">
-        <p>&copy; {new Date().getFullYear()} DropMix. Todos los derechos reservados.</p>
-        <p className="text-gray-400 text-sm mt-2">Síguenos en nuestras redes sociales</p>
-      </footer>
+      {isLoggingOut && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm animate-fade-in">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-lg text-center animate-scale-in">
+            <p className="text-white text-lg font-bold">Cerrando sesión...</p>
+            <div className="mt-4 animate-spin h-8 w-8 border-4 border-t-transparent border-white rounded-full"></div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

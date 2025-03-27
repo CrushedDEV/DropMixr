@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import MashupList from '@/components/mashup-list';
+import { Pagination, PaginationItem, PaginationLink, PaginationPrevious, PaginationNext } from '@/components/ui/pagination';
 
 export default function Explore() {
   const [mashups, setMashups] = useState([]);
@@ -13,7 +14,7 @@ export default function Explore() {
 
   useEffect(() => {
     // Llamada a la API para obtener los mashups
-    fetch('/mashups')
+    fetch('/api/mashups')
       .then((response) => response.json())
       .then((data) => setMashups(data))
       .catch((error) => console.error('Error fetching mashups:', error));
@@ -88,6 +89,34 @@ export default function Explore() {
       <div className="ml-64 p-6">
         <h2 className="text-3xl font-semibold text-white mb-8">Explora los mejores Beats</h2>
         <MashupList mashups={currentMashups} />
+
+        {/* Paginación */}
+        <div className="mt-8 flex justify-center">
+          <Pagination>
+            <PaginationPrevious
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              Anterior
+            </PaginationPrevious>
+            {Array.from({ length: totalPages }, (_, index) => (
+              <PaginationItem key={index}>
+                <PaginationLink
+                  onClick={() => handlePageChange(index + 1)}
+                  active={currentPage === index + 1}
+                >
+                  {index + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationNext
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Siguiente
+            </PaginationNext>
+          </Pagination>
+        </div>
       </div>
 
       {isLoggingOut && (

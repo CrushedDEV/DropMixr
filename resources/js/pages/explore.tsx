@@ -14,7 +14,7 @@ export default function Explore() {
 
   useEffect(() => {
     // Llamada a la API para obtener los mashups
-    fetch('/api/mashups')
+    fetch('/mashups')
       .then((response) => response.json())
       .then((data) => setMashups(data))
       .catch((error) => console.error('Error fetching mashups:', error));
@@ -96,6 +96,7 @@ export default function Explore() {
             <PaginationPrevious
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
+              className="cursor-pointer"
             >
               Anterior
             </PaginationPrevious>
@@ -104,6 +105,7 @@ export default function Explore() {
                 <PaginationLink
                   onClick={() => handlePageChange(index + 1)}
                   active={currentPage === index + 1}
+                  className="cursor-pointer"
                 >
                   {index + 1}
                 </PaginationLink>
@@ -112,6 +114,7 @@ export default function Explore() {
             <PaginationNext
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
+              className="cursor-pointer"
             >
               Siguiente
             </PaginationNext>

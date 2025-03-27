@@ -1,14 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Head, useForm } from '@inertiajs/react';
-import BeatCard from '@/components/BeatCard';
+import MashupList from '@/components/mashup-list';
 
 export default function Explore() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [genre, setGenre] = useState('');
-  const [sortOrder, setSortOrder] = useState('');
+  const [mashups, setMashups] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -17,27 +12,26 @@ export default function Explore() {
   const { post } = useForm();
 
   useEffect(() => {
+    // Llamada a la API para obtener los mashups
+    fetch('/mashups')
+      .then((response) => response.json())
+      .then((data) => setMashups(data))
+      .catch((error) => console.error('Error fetching mashups:', error));
+  }, []);
+
+  useEffect(() => {
     function handleClickOutside(event) {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setIsMenuOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
 
-  const beats = [...Array(300)].map((_, index) => ({
-    id: index + 1,
-    user: `Usuario #${index + 1}`,
-    bpm: 120 + (index % 10) * 5,
-    tonalidad: index % 2 === 0 ? 'C' : 'Am',
-    image: `https://picsum.photos/seed/${index + 1}/500/500`,
-    audio: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3`
-  }));
-
-  const totalPages = Math.ceil(beats.length / itemsPerPage);
+  const totalPages = Math.ceil(mashups.length / itemsPerPage);
 
   const handlePageChange = (page) => {
     if (page < 1 || page > totalPages) return;
@@ -56,7 +50,7 @@ export default function Explore() {
   };
 
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentBeats = beats.slice(startIndex, startIndex + itemsPerPage);
+  const currentMashups = mashups.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white font-sans relative">
@@ -93,11 +87,7 @@ export default function Explore() {
 
       <div className="ml-64 p-6">
         <h2 className="text-3xl font-semibold text-white mb-8">Explora los mejores Beats</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md-grid-cols-3 lg:grid-cols-4 gap-8">
-          {currentBeats.map((beat, index) => (
-            <BeatCard key={beat.id} id={beat.id} user={beat.user} bpm={beat.bpm} tonalidad={beat.tonalidad} image={beat.image} audio={beat.audio} index={index} />
-          ))}
-        </div>
+        <MashupList mashups={currentMashups} />
       </div>
 
       {isLoggingOut && (

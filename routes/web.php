@@ -4,13 +4,10 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MashupController;
-use App\Mail\WelcomeNewUser;
 
 Route::get('/', function () {
     return Inertia::render('HomePage');
 })->name('home');
-
-Route::get( '/email', fn() => ( new WelcomeNewUser() )->render() );
 
 
 Route::middleware(['auth', 'verified'])->group(function () {

@@ -8,7 +8,7 @@ export default defineConfig({
     plugins: [
         laravel({
             input: ['resources/css/app.css', 'resources/js/app.tsx', 'resources/css/mail.css'],
-            ssr: ['resources/js/ssr.tsx', 'resources/js/mail.jsx'],
+            ssr: ['resources/js/ssr.tsx', 'resources/ts/mail.tsx'],
             refresh: true,
         }),
         react(),

@@ -5,12 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Mashup;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
 class MashupController extends Controller
 {
     public function index()
     {
-        $mashups = Mashup::with('user') // Asegúrate de tener la relación 'user' definida en el modelo Mashup
+        $mashups = Mashup::with('user')
             ->get()
             ->map(function ($mashup) {
                 return [
@@ -39,25 +40,32 @@ class MashupController extends Controller
 
     public function store(Request $request)
     {
-        // Validar los datos del formulario
         $request->validate([
             'title' => 'required|string|max:255',
-            'file_path' => 'required|string',
-            'user_id' => 'required|exists:users,id',
+            'file_path' => 'required|file|mimes:mp3,wav',
             'bpm' => 'nullable|integer',
             'key' => 'nullable|string|max:10',
             'duration' => 'nullable|numeric',
             'description' => 'nullable|string',
             'is_public' => 'required|boolean',
-            'is_approved' => 'required|boolean',
-            'status' => 'required|in:pending,approved,rejected',
         ]);
 
-        // Crear el mashup
-        Mashup::create($request->all());
+        $filePath = $request->file('file_path')->store('mashups', 'public');
 
-        // Redirigir al índice con un mensaje de éxito
-        return redirect()->route('mashups.index')->with('success', 'Mashup creado exitosamente.');
+        Mashup::create([
+            'title' => $request->title,
+            'file_path' => $filePath,
+            'user_id' => auth()->id(),
+            'bpm' => $request->bpm,
+            'key' => $request->key,
+            'duration' => $request->duration,
+            'description' => $request->description,
+            'is_public' => $request->is_public,
+            'is_approved' => false,
+            'status' => 'pending',
+        ]);
+
+        return redirect('/explore')->with('success', 'Mashup subido exitosamente.');
     }
 
     public function show(Mashup $mashup)
@@ -105,5 +113,10 @@ class MashupController extends Controller
 
         // Redirigir al índice con un mensaje de éxito
         return redirect()->route('mashups.index')->with('success', 'Mashup eliminado exitosamente.');
+    }
+
+    public function download($filename)
+    {
+        return Storage::download('mashups/' . $filename);
     }
 }

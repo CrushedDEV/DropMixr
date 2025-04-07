@@ -65,6 +65,7 @@ export default function Explore() {
               <li><a href="/" className="hover:text-pink-500">Inicio</a></li>
               <li><a href="/explore" className="hover:text-pink-500">Explorar</a></li>
               <li><a href="/about" className="hover:text-pink-500">Sobre Nosotros</a></li>
+              <li><a href="/upload" className="hover:text-pink-500">Subir Mashup</a></li> {/* Nuevo enlace */}
             </ul>
           </nav>
         </div>

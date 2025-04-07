@@ -23,5 +23,11 @@ Route::get('/about', function () {
 
 Route::resource('mashups', controller: MashupController::class);
 
+Route::get('/upload', function () {
+    return Inertia::render('upload');
+});
+
+Route::get('/mashups/download/{filename}', [MashupController::class, 'download']);
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

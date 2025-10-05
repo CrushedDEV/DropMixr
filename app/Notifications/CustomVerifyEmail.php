@@ -24,6 +24,11 @@ class CustomVerifyEmail extends BaseVerifyEmail
         $url = $this->verificationUrl($notifiable);
         $name = $notifiable->name;
 
-        return new VerifyEmailCustom($url, $name)->to($notifiable->email);
+        // Ensure the Mailable has a recipient. When returning a Mailable from a
+        // Notification, Laravel does not automatically set the "to" address.
+        // Configure it explicitly to avoid "An email must have a To, Cc, or Bcc header".
+        return (new VerifyEmailCustom($url, $name))
+            ->to($notifiable->email, $name);
     }
+    
 }

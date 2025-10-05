@@ -56,6 +56,11 @@ Asegúrate de tener instalados los siguientes componentes:
    cp .env.example .env
    php artisan key:generate
        ```
+5. Generar Mail SSR
+       ```bash
+   npm run build:ssr
+       ```
+
 6. Iniciar proyecto
        ```bash
    composer run dev

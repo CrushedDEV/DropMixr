@@ -1,4 +1,5 @@
 # DropMix - Plataforma de Mashups para DJs y Productores
+> ⚠️ **Disclaimer:** DropMix is a long-term project and currently a work in progress (WIP). Development has been temporarily paused, but it will continue in the future as time allows.
 
 **DropMix** es una plataforma donde DJs y productores pueden compartir, intercambiar y descargar mashups de música. La idea principal es que los usuarios aporten mashups para poder descargar otros, creando una biblioteca de contenido colaborativo. Además, la plataforma contará con funciones de moderación para asegurar que los mashups subidos cumplan con ciertos estándares.
 

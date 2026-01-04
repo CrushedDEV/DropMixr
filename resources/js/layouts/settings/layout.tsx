@@ -8,17 +8,17 @@ import { type PropsWithChildren } from 'react';
 
 const sidebarNavItems: NavItem[] = [
     {
-        title: 'Profile',
+        title: 'Perfil',
         href: '/settings/profile',
         icon: null,
     },
     {
-        title: 'Password',
+        title: 'Contraseña',
         href: '/settings/password',
         icon: null,
     },
     {
-        title: 'Appearance',
+        title: 'Apariencia',
         href: '/settings/appearance',
         icon: null,
     },
@@ -33,8 +33,8 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
     const currentPath = window.location.pathname;
 
     return (
-        <div className="px-4 py-6">
-            <Heading title="Settings" description="Manage your profile and account settings" />
+        <div className="px-4 py-6 min-h-screen bg-black text-white">
+            <Heading title="Configuración" description="Gestiona tu perfil y configuración de cuenta" />
 
             <div className="flex flex-col space-y-8 lg:flex-row lg:space-y-0 lg:space-x-12">
                 <aside className="w-full max-w-xl lg:w-48">
@@ -45,8 +45,8 @@ export default function SettingsLayout({ children }: PropsWithChildren) {
                                 size="sm"
                                 variant="ghost"
                                 asChild
-                                className={cn('w-full justify-start', {
-                                    'bg-muted': currentPath === item.href,
+                                className={cn('w-full justify-start text-gray-400 hover:text-white hover:bg-white/10 transition-colors', {
+                                    'bg-white/10 text-white font-medium': currentPath === item.href,
                                 })}
                             >
                                 <Link href={item.href} prefetch>

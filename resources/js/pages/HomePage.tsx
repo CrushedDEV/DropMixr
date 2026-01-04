@@ -8,7 +8,7 @@ import Footer from "@/components/footer";
 export default function HomePage() {
   return (
     <>
-      <Head title="DropMix" />
+      <Head title="DropMixr" />
       <div className="bg-gradient-to-b from-black via-gray-900 to-black text-white min-h-screen font-sans">
         <Header />
         <HeroSection />

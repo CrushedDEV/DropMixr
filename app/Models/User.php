@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Notifications\CustomVerifyEmail;
+use App\Notifications\CustomResetPassword;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -47,8 +49,27 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    public function sendEmailVerificationNotification() 
+    public function sendEmailVerificationNotification()
     {
         $this->notify(new CustomVerifyEmail($this->name));
+    }
+
+    /**
+     * Send the password reset notification.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new CustomResetPassword($token));
+    }
+
+    /**
+     * Relación con los mashups creados por el usuario.
+     */
+    public function mashups()
+    {
+        return $this->hasMany(Mashup::class);
     }
 }

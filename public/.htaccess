@@ -1,3 +1,11 @@
+# Aumentar límites de carga de archivos para mashups
+php_value upload_max_filesize 100M
+php_value post_max_size 100M
+php_value memory_limit 256M
+php_value max_execution_time 300
+php_value max_input_time 300
+
+# Reescritura de URLs (Laravel)
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
@@ -22,4 +30,9 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
+    # Manejo de solicitudes HEAD/GET
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
 </IfModule>

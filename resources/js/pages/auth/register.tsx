@@ -1,15 +1,15 @@
 import { Head, useForm as useInertiaForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Music, ArrowRight } from 'lucide-react';
 import { FormEventHandler } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
-import { Card, CardContent } from '@/components/ui/card';
 import { z } from 'zod';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Header from '@/components/header';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'El nombre es obligatorio' }),
@@ -21,7 +21,7 @@ const formSchema = z.object({
 type RegisterForm = z.infer<typeof formSchema>;
 
 export default function Register() {
-  const { data, setData, post, processing, errors, reset } = useInertiaForm<Required<RegisterForm>>({
+  const { setData, post, processing, errors, reset } = useInertiaForm<Required<RegisterForm>>({
     name: '',
     email: '',
     password: '',
@@ -48,108 +48,132 @@ export default function Register() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-black via-gray-900 to-black text-white min-h-screen font-sans flex items-center justify-center">
+    <>
       <Head title="Crear cuenta" />
-      
-      {/* Header */}
-      <header className="fixed top-0 left-0 w-full backdrop-blur-md bg-black/50 text-white p-4 flex justify-between items-center z-50">
-        <h1 className="text-2xl font-bold">DropMix</h1>
-        <nav>
-          <ul className="flex gap-4">
-            <li><a href="/" className="hover:text-pink-500">Inicio</a></li>
-            <li><a href="/explore" className="hover:text-pink-500">Explorar</a></li>
-            <li><a href="/about" className="hover:text-pink-500">Sobre Nosotros</a></li>
-          </ul>
-        </nav>
-      </header>
+      <div className="min-h-screen bg-black text-white font-sans selection:bg-pink-500/30">
+        <Header />
 
-      {/* Main Content */}
-      <div className="flex justify-center items-center min-h-screen px-6 py-12 w-xl">
-        <Card className="bg-white/10 backdrop-blur-lg p-12 rounded-2xl shadow-2xl w-full max-w-6xl border border-pink-500">
-          <h2 className="text-4xl font-semibold text-center text-white mb-8">Crear cuenta</h2>
+        {/* Background Effects */}
+        <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-indigo-600/20 rounded-full blur-[130px] animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-pink-600/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
+        </div>
 
-          <form onSubmit={submit} className="flex flex-col gap-6">
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name" className="text-white">Nombre</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  required
-                  autoFocus
-                  autoComplete="name"
-                  value={data.name}
-                  onChange={(e) => setData('name', e.target.value)}
-                  placeholder="Nombre completo"
-                  className="bg-white/20 text-white placeholder-gray-400"
-                />
-                <InputError message={errors.name} className="text-red-500" />
+        <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-24">
+          <div className="w-full max-w-md">
+            {/* Logo & Title */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-600 to-purple-600 shadow-xl shadow-pink-500/20 mb-6 group transition-transform hover:scale-110 duration-500">
+                <Music className="w-8 h-8 text-white" />
               </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="email" className="text-white">Correo electrónico</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  value={data.email}
-                  onChange={(e) => setData('email', e.target.value)}
-                  placeholder="email@example.com"
-                  className="bg-white/20 text-white placeholder-gray-400"
-                />
-                <InputError message={errors.email} className="text-red-500" />
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="password" className="text-white">Contraseña</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  autoComplete="new-password"
-                  value={data.password}
-                  onChange={(e) => setData('password', e.target.value)}
-                  placeholder="Contraseña"
-                  className="bg-white/20 text-white placeholder-gray-400"
-                />
-                <InputError message={errors.password} className="text-red-500" />
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="password_confirmation" className="text-white">Confirmar contraseña</Label>
-                <Input
-                  id="password_confirmation"
-                  type="password"
-                  required
-                  autoComplete="new-password"
-                  value={data.password_confirmation}
-                  onChange={(e) => setData('password_confirmation', e.target.value)}
-                  placeholder="Confirmar contraseña"
-                  className="bg-white/20 text-white placeholder-gray-400"
-                />
-                <InputError message={errors.password_confirmation} className="text-red-500" />
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-pink-500 text-white hover:bg-pink-600"
-                disabled={processing}
-              >
-                {processing && <LoaderCircle className="h-4 w-4 animate-spin mr-2" />}
-                Crear cuenta
-              </Button>
+              <h1 className="text-3xl font-bold bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent mb-2">
+                Únete a DropMixr
+              </h1>
+              <p className="text-gray-400">Comparte y descubre mashups increíbles</p>
             </div>
 
-            <div className="text-center text-sm text-white">
-              ¿Ya tienes una cuenta?{' '}
-              <TextLink href={route('login')} className="text-indigo-400">
-                Iniciar sesión
-              </TextLink>
+            {/* Register Card */}
+            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl">
+              <form onSubmit={submit} className="flex flex-col gap-6">
+                <div className="space-y-4">
+
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-gray-300 ml-1">Nombre de usuario</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      required
+                      autoFocus
+                      autoComplete="name"
+                      onChange={(e) => {
+                        form.setValue('name', e.target.value);
+                        setData('name', e.target.value);
+                      }}
+                      placeholder="Tu nombre artístico"
+                      className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 h-12 rounded-xl"
+                    />
+                    <InputError message={errors.name} />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-gray-300 ml-1">Correo electrónico</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      onChange={(e) => {
+                        form.setValue('email', e.target.value);
+                        setData('email', e.target.value);
+                      }}
+                      placeholder="nombre@ejemplo.com"
+                      className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 h-12 rounded-xl"
+                    />
+                    <InputError message={errors.email} />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password" className="text-gray-300 ml-1">Contraseña</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      required
+                      autoComplete="new-password"
+                      onChange={(e) => {
+                        form.setValue('password', e.target.value);
+                        setData('password', e.target.value);
+                      }}
+                      placeholder="Al menos 6 caracteres"
+                      className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 h-12 rounded-xl"
+                    />
+                    <InputError message={errors.password} />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password_confirmation" className="text-gray-300 ml-1">Confirmar contraseña</Label>
+                    <Input
+                      id="password_confirmation"
+                      type="password"
+                      required
+                      onChange={(e) => {
+                        form.setValue('password_confirmation', e.target.value);
+                        setData('password_confirmation', e.target.value);
+                      }}
+                      placeholder="Repite tu contraseña"
+                      className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 h-12 rounded-xl"
+                    />
+                    <InputError message={errors.password_confirmation} />
+                  </div>
+
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold h-12 rounded-xl shadow-lg shadow-pink-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  disabled={processing}
+                >
+                  {processing ? (
+                    <LoaderCircle className="h-5 w-5 animate-spin mr-2" />
+                  ) : (
+                    <>
+                      Crear Cuenta <ArrowRight className="ml-2 w-5 h-5" />
+                    </>
+                  )}
+                </Button>
+
+                <div className="text-center pt-4 border-t border-white/5">
+                  <p className="text-sm text-gray-400">
+                    ¿Ya eres miembro?{' '}
+                    <TextLink href={route('login')} className="text-white hover:text-pink-400 font-medium transition-colors">
+                      Inicia sesión
+                    </TextLink>
+                  </p>
+                </div>
+              </form>
             </div>
-          </form>
-        </Card>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -7,8 +7,12 @@ interface AppLayoutProps {
     breadcrumbs?: BreadcrumbItem[];
 }
 
+import { AudioPlayerProvider } from '@/components/global-audio-player';
+
 export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => (
-    <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
-        {children}
-    </AppLayoutTemplate>
+    <AudioPlayerProvider>
+        <AppLayoutTemplate breadcrumbs={breadcrumbs} {...props}>
+            {children}
+        </AppLayoutTemplate>
+    </AudioPlayerProvider>
 );

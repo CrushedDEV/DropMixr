@@ -6,6 +6,7 @@ import { initializeTheme } from './hooks/use-appearance';
 import { Switch } from "@/components/ui/switch"
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
+import { router } from '@inertiajs/react';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -18,14 +19,12 @@ createInertiaApp({
         root.render(<App {...props} />);
     },
     progress: {
-        color: '#008ad8', // Aquí cambia el color de la barra de progreso
+        color: '#008ad8',
     },
 });
 
-const { on } = require('@inertiajs/react').router;
-
-on('start', () => NProgress.start());
-on('finish', () => NProgress.done());
+router.on('start', () => NProgress.start());
+router.on('finish', () => NProgress.done());
 
 // This will set light / dark mode on load...
 initializeTheme();

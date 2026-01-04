@@ -1,16 +1,16 @@
 import { Head, useForm as useInertiaForm } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, Music, ArrowRight } from 'lucide-react';
 import { FormEventHandler } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
-import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { z } from 'zod';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Header from '@/components/header';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Correo electrónico inválido' }),
@@ -26,7 +26,7 @@ interface LoginProps {
 }
 
 export default function Login({ status, canResetPassword }: LoginProps) {
-  const { data, setData, post, processing, errors, reset } = useInertiaForm<Required<LoginForm>>({
+  const { setData, post, processing, errors, reset } = useInertiaForm<Required<LoginForm>>({
     email: '',
     password: '',
     remember: false,
@@ -51,99 +51,125 @@ export default function Login({ status, canResetPassword }: LoginProps) {
   };
 
   return (
-    <div className="bg-gradient-to-b from-black via-gray-900 to-black text-white min-h-screen font-sans flex items-center justify-center">
+    <>
       <Head title="Iniciar sesión" />
-      
-      {/* Header */}
-      <header className="fixed top-0 left-0 w-full backdrop-blur-md bg-black/50 text-white p-4 flex justify-between items-center z-50">
-        <h1 className="text-2xl font-bold">DropMix</h1>
-        <nav>
-          <ul className="flex gap-4">
-            <li><a href="/" className="hover:text-pink-500">Inicio</a></li>
-            <li><a href="/explore" className="hover:text-pink-500">Explorar</a></li>
-            <li><a href="/about" className="hover:text-pink-500">Sobre Nosotros</a></li>
-          </ul>
-        </nav>
-      </header>
+      <div className="min-h-screen bg-black text-white font-sans selection:bg-pink-500/30">
+        <Header />
 
-      {/* Main Content */}
-      <div className="flex justify-center items-center min-h-screen w-xl px-6 py-12">
-        <Card className="bg-white/10 backdrop-blur-lg p-12 rounded-2xl shadow-2xl w-full max-w-6xl border border-indigo-500">
-          <h2 className="text-4xl font-semibold text-center text-white mb-8">Inicia sesión</h2>
+        {/* Background Effects */}
+        <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] animate-pulse" />
+          <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-pink-600/20 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }} />
+        </div>
 
-          <form onSubmit={submit} className="flex flex-col gap-6">
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="email" className="text-white">Correo electrónico</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  required
-                  autoFocus
-                  autoComplete="email"
-                  value={data.email}
-                  onChange={(e) => setData('email', e.target.value)}
-                  placeholder="email@example.com"
-                  className="bg-white/20 text-white placeholder-gray-400"
-                />
-                <InputError message={errors.email} className="text-red-500" />
+        <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-20">
+          <div className="w-full max-w-md">
+            {/* Logo & Title */}
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-pink-600 to-purple-600 shadow-xl shadow-purple-500/20 mb-6 group transition-transform hover:scale-110 duration-500">
+                <Music className="w-8 h-8 text-white" />
               </div>
+              <h1 className="text-3xl font-bold bg-gradient-to-b from-white to-gray-400 bg-clip-text text-transparent mb-2">
+                Bienvenido de nuevo
+              </h1>
+              <p className="text-gray-400">Ingresa a tu cuenta para continuar</p>
+            </div>
 
-              <div className="grid gap-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-white">Contraseña</Label>
-                  {canResetPassword && (
-                    <TextLink href={route('password.request')} className="text-sm text-indigo-400">
-                      ¿Olvidaste tu contraseña?
-                    </TextLink>
-                  )}
+            {/* Login Card */}
+            <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-8 shadow-2xl">
+              <form onSubmit={submit} className="flex flex-col gap-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-gray-300 ml-1">Correo electrónico</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      required
+                      autoFocus
+                      autoComplete="email"
+                      onChange={(e) => {
+                        form.setValue('email', e.target.value);
+                        setData('email', e.target.value);
+                      }}
+                      placeholder="nombre@ejemplo.com"
+                      className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 h-12 rounded-xl"
+                    />
+                    <InputError message={errors.email} />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="password" className="text-gray-300 ml-1">Contraseña</Label>
+                      {canResetPassword && (
+                        <TextLink href={route('password.request')} className="text-xs text-pink-400 hover:text-pink-300 transition-colors">
+                          ¿Olvidaste tu contraseña?
+                        </TextLink>
+                      )}
+                    </div>
+                    <Input
+                      id="password"
+                      type="password"
+                      required
+                      autoComplete="current-password"
+                      onChange={(e) => {
+                        form.setValue('password', e.target.value);
+                        setData('password', e.target.value);
+                      }}
+                      placeholder="••••••••"
+                      className="bg-black/20 border-white/10 text-white placeholder:text-gray-500 focus:border-pink-500 focus:ring-pink-500/20 h-12 rounded-xl"
+                    />
+                    <InputError message={errors.password} />
+                  </div>
+
+                  <div className="flex items-center space-x-3 pt-2">
+                    <Checkbox
+                      id="remember"
+                      onCheckedChange={(checked) => {
+                        const val = checked === true;
+                        form.setValue('remember', val);
+                        setData('remember', val);
+                      }}
+                      className="border-white/20 data-[state=checked]:bg-pink-600 data-[state=checked]:border-pink-600"
+                    />
+                    <Label htmlFor="remember" className="text-sm text-gray-400 cursor-pointer select-none">
+                      Mantener sesión iniciada
+                    </Label>
+                  </div>
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  value={data.password}
-                  onChange={(e) => setData('password', e.target.value)}
-                  placeholder="Contraseña"
-                  className="bg-white/20 text-white placeholder-gray-400"
-                />
-                <InputError message={errors.password} className="text-red-500" />
-              </div>
 
-              <div className="flex items-center space-x-3">
-                <Checkbox
-                  id="remember"
-                  checked={data.remember}
-                  onCheckedChange={() => setData('remember', !data.remember)}
-                  className="rounded-md border-gray-600 text-indigo-500"
-                />
-                <Label htmlFor="remember" className="text-sm text-white">
-                  Recuérdame
-                </Label>
-              </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white font-bold h-12 rounded-xl shadow-lg shadow-pink-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  disabled={processing}
+                >
+                  {processing ? (
+                    <LoaderCircle className="h-5 w-5 animate-spin mr-2" />
+                  ) : (
+                    <>
+                      Iniciar Sesión <ArrowRight className="ml-2 w-5 h-5" />
+                    </>
+                  )}
+                </Button>
 
-              <Button
-                type="submit"
-                className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
-                disabled={processing}
-              >
-                {processing && <LoaderCircle className="h-4 w-4 animate-spin mr-2" />}
-                Iniciar sesión
-              </Button>
+                <div className="text-center pt-4 border-t border-white/5">
+                  <p className="text-sm text-gray-400">
+                    ¿Aún no tienes cuenta?{' '}
+                    <TextLink href={route('register')} className="text-white hover:text-pink-400 font-medium transition-colors">
+                      Regístrate gratis
+                    </TextLink>
+                  </p>
+                </div>
+              </form>
+
+              {status && (
+                <div className="mt-6 p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-center text-sm font-medium text-green-400">
+                  {status}
+                </div>
+              )}
             </div>
-
-            <div className="text-center text-sm text-white">
-              ¿No tienes una cuenta?{' '}
-              <TextLink href={route('register')} className="text-indigo-400">
-                Regístrate
-              </TextLink>
-            </div>
-          </form>
-
-          {status && <div className="mt-4 text-center text-sm text-green-600">{status}</div>}
-        </Card>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

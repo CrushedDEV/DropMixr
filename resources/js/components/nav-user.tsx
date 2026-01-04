@@ -12,6 +12,26 @@ export function NavUser() {
     const { state } = useSidebar();
     const isMobile = useIsMobile();
 
+    if (!auth.user) {
+        return (
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton size="lg" asChild>
+                        <a href="/login" className="group">
+                            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                                <ChevronsUpDown className="size-4 rotate-90" />
+                            </div>
+                            <div className="grid flex-1 text-left text-sm leading-tight">
+                                <span className="truncate font-semibold">Iniciar Sesión</span>
+                                <span className="truncate text-xs text-muted-foreground">Acceso a cuenta</span>
+                            </div>
+                        </a>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        );
+    }
+
     return (
         <SidebarMenu>
             <SidebarMenuItem>

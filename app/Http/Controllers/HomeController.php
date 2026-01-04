@@ -10,8 +10,8 @@ class HomeController extends Controller
     public function index(): Response
     {
         return Inertia::render('HomePage', [
-            'title' => 'Bienvenidos a DropMix', 
-            'description' => 'DropMix es una plataforma donde DJs y productores pueden intercambiar mashups. ¡Comparte y descarga música con facilidad!',
+            'title' => 'Bienvenidos a DropMixr',
+            'description' => 'DropMixr es una plataforma donde DJs y productores pueden intercambiar mashups. ¡Comparte y descarga música con facilidad!',
             'features' => [
                 'Sube tus mashups',
                 'Escucha los mashups más populares',

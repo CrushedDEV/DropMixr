@@ -24,9 +24,11 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        if (env('APP_ENV') !== 'local' || str_contains(env('APP_URL'), 'ngrok') || str_contains(env('APP_URL'), 'trycloudflare') || str_contains(env('APP_URL'), 'devtunnels.ms')) {
-            URL::forceScheme('https');
-        }
+        $this->registerPolicies();
+
+        // if (env('APP_ENV') !== 'local' || str_contains(env('APP_URL'), 'ngrok') || str_contains(env('APP_URL'), 'trycloudflare') || str_contains(env('APP_URL'), 'devtunnels.ms')) {
+        //     URL::forceScheme('https');
+        // }
     }
 
     /**

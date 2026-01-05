@@ -61,7 +61,13 @@ Si haces cambios en el código (git pull) o en la configuración, sigue estos pa
     ```
     > Docker detectará los cambios y reconstruirá solo lo necesario.
 
-## 4. Gestión y Mantenimiento
+### Forzar Reconstrucción desde Cero (Sin Caché)
+Si necesitas asegurarte de que se instalan todas las dependencias desde cero (útil si hay errores extraños de build):
+
+```bash
+docker-compose -f docker-compose.prod.yml build --no-cache
+docker-compose -f docker-compose.prod.yml up -d --force-recreate
+```
 
 ### Ejecutar comandos de Artisan
 Para ejecutar cualquier comando de Laravel, usa `exec app`:

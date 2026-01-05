@@ -12,13 +12,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Services\ZipProcessor;
 use App\Models\Setting;
+use Illuminate\Support\Facades\DB;
 
 class PackController extends Controller
 {
     public function index()
     {
         $packs = Pack::where('is_public', true)
-            ->with('user')
+            ->with(['user', 'mashups'])
             ->latest()
             ->get()
             ->map(function ($pack) {
@@ -114,7 +115,11 @@ class PackController extends Controller
             $pack->description = $validated['description'];
             $pack->price = $price;
             $pack->file_path = $path;
+            $pack->file_path = $path;
             $pack->file_size = $newFileSize;
+            $pack->status = 'pending';
+            $pack->is_approved = false;
+            $pack->is_public = false;
 
             if ($request->hasFile('cover_image')) {
                 $coverPath = $request->file('cover_image')->store('packs/covers', 'public');
@@ -123,7 +128,95 @@ class PackController extends Controller
 
             $pack->save();
 
+            // Extract and create Mashups
+            $zip = new \ZipArchive;
+            if ($zip->open(storage_path('app/public/' . $path)) === TRUE) {
+                $extractPath = 'packs/' . $pack->id . '/files';
+                // Create directory if not exists
+                if (!Storage::disk('public')->exists($extractPath)) {
+                    Storage::disk('public')->makeDirectory($extractPath);
+                }
+
+                $allowedExtensions = ['mp3', 'wav', 'ogg', 'm4a'];
+
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $filename = $zip->getNameIndex($i);
+                    $fileinfo = pathinfo($filename);
+
+                    // Skip macos/hidden
+                    if (str_contains($filename, '__MACOSX') || str_starts_with($filename, '.'))
+                        continue;
+                    if (str_ends_with($filename, '/'))
+                        continue; // Skip dirs
+
+                    if (isset($fileinfo['extension']) && in_array(strtolower($fileinfo['extension']), $allowedExtensions)) {
+                        // Extract file manually to stream to storage or just extraction to temp then move?
+                        // ZipArchive extracts to filesystem path.
+
+                        // We can define a temporary extraction path
+                        $tempExtractPath = storage_path('app/public/' . $extractPath);
+                        $zip->extractTo($tempExtractPath, $filename);
+
+                        $fullPath = $tempExtractPath . '/' . $filename;
+
+                        // Sanitize filename for storage to avoid S3 encoding issues
+                        $safeFilename = \Illuminate\Support\Str::slug($fileinfo['filename']) . '.' . $fileinfo['extension'];
+                        // Ensure Uniqueness slightly in case slug matches multiple different files (rare but possible with weird chars)
+                        $safeFilename = time() . '_' . $i . '_' . $safeFilename;
+
+                        $storagePath = $extractPath . '/' . $safeFilename;
+
+                        // If default disk is S3 (or any non-local public), we need to upload it there
+                        $defaultDisk = config('filesystems.default');
+                        if ($defaultDisk !== 'public') {
+                            if (file_exists($fullPath)) {
+                                $fileContent = file_get_contents($fullPath);
+                                Storage::disk($defaultDisk)->put($storagePath, $fileContent, 'public');
+                            }
+                        } else {
+                            // If local public, we might want to rename it to the safe name too?
+                            // Or just move it?
+                            // For consistency, let's just move/rename the local file to the safe path if we are keeping it local.
+                            if (file_exists($fullPath)) {
+                                Storage::disk('public')->put($storagePath, file_get_contents($fullPath));
+                                // Remove the original weird-named file from public storage if it was extracted there directly
+                                // zip extractTo extracts with original name.
+                                unlink($fullPath);
+                            }
+                        }
+
+                        // Create Mashup
+                        $mashup = new Mashup();
+                        $mashup->user_id = auth()->id();
+                        $mashup->title = $fileinfo['filename']; // Keep original title
+                        $mashup->file_path = $storagePath;
+                        $mashup->image_path = $pack->cover_image_path; // Use pack cover
+                        $mashup->bpm = 0;
+                        $mashup->key = 'N/A';
+                        $mashup->status = 'approved'; // Since it's in a pack
+                        $mashup->is_public = false; // Hidden from main explore? Or public? Let's say false/hidden for now as it belongs to a pack.
+                        $mashup->save();
+
+                        // Attach to Pack
+                        $pack->mashups()->attach($mashup->id);
+                    }
+                }
+                $zip->close();
+            }
+
             DB::commit();
+
+            // Notify Discord
+            try {
+                app(\App\Services\DiscordNotificationService::class)->notifyNewContent(
+                    'Pack',
+                    $pack->title,
+                    $user->name,
+                    route('admin.dashboard')
+                );
+            } catch (\Exception $e) {
+                Log::error('Notification failed: ' . $e->getMessage());
+            }
 
             return redirect()->route('dashboard')->with('success', "Pack creado exitosamente. Precio calculado: {$price} créditos ( por {$audioCount} canciones).");
 
@@ -139,7 +232,7 @@ class PackController extends Controller
 
     public function show(Pack $pack)
     {
-        $pack->load(['user']);
+        $pack->load(['user', 'mashups.user']);
 
         // Format URLs for view
         if ($pack->cover_image_path && !str_starts_with($pack->cover_image_path, '/storage')) {

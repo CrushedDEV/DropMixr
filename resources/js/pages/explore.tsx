@@ -143,306 +143,230 @@ export default function Explore() {
     <AppLayout breadcrumbs={[{ title: 'Explorar', href: '/explore' }]}>
       <Head title="Explorar Beats" />
 
-      <div className="p-4 lg:p-6">
-        {/* Hero Section */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-pink-600/20 via-purple-600/20 to-blue-600/20 border border-pink-500/20 p-6 lg:p-8 mb-6">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-50"></div>
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-pink-500/30 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-purple-500/30 rounded-full blur-3xl"></div>
+      <div className="min-h-screen bg-black">
+        {/* Header / Hero - Minimal */}
+        <div className="pt-8 pb-6 px-4 lg:px-8 border-b border-white/5">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+              <div>
+                <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-white mb-2">
+                  Explorar<span className="text-pink-600">.</span>
+                </h1>
+                <p className="text-zinc-400 text-lg max-w-xl font-light">
+                  Navega por nuestra colección curada de mashups y edits exclusivos.
+                </p>
+              </div>
 
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-5 h-5 text-pink-400" />
-              <span className="text-sm font-medium text-pink-400 uppercase tracking-wider">Biblioteca de Mashups</span>
-            </div>
-            <h1 className="text-4xl lg:text-5xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-white via-pink-100 to-purple-100 bg-clip-text text-transparent">
-                Descubre música increíble
-              </span>
-            </h1>
-            <p className="text-gray-300 text-lg mb-6 max-w-2xl">
-              Explora nuestra colección de mashups creados por productores talentosos.
-            </p>
-
-            <div className="flex flex-wrap gap-3">
-              <Link href="/mashups/create">
-                <Button className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 shadow-lg shadow-pink-500/25">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Subir Mashup
-                </Button>
-              </Link>
-              <Link href="/mashups/batch">
-                <Button variant="outline" className="border-pink-500/50 hover:bg-pink-500/10">
-                  <Music className="w-4 h-4 mr-2" />
-                  Subida Múltiple
-                </Button>
-              </Link>
+              <div className="flex gap-3">
+                <Link href="/mashups/create">
+                  <Button className="rounded-full bg-white text-black hover:bg-zinc-200 font-medium px-6">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Subir
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Search & Filters Bar */}
-        <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-4 mb-6">
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Search */}
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Buscar mashups..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg pl-10 pr-10 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-pink-500"
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white">
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-            </div>
+        {/* Sticky Filter Bar */}
+        <div className="sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-white/5 px-4 lg:px-8 py-4">
+          <div className="max-w-7xl mx-auto flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
 
-            {/* Sort Dropdown */}
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none bg-gray-900 border border-gray-700 rounded-lg pl-3 pr-8 py-2.5 text-sm text-white focus:outline-none focus:border-pink-500 cursor-pointer"
-              >
-                {sortOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-            </div>
+              {/* Search */}
+              <div className="relative w-full md:max-w-md group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within:text-white transition-colors" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Buscar mashups, artistas..."
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-full py-2.5 pl-10 pr-10 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-zinc-700 focus:bg-zinc-900/80 transition-all"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-500 hover:text-white">
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </div>
 
-            {/* Toggle Filters */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${showFilters ? 'bg-pink-600 text-white' : 'bg-gray-900 text-gray-300 border border-gray-700 hover:border-pink-500'
-                }`}
-            >
-              <SlidersHorizontal className="w-4 h-4" />
-              Filtros
-              {hasActiveFilters && <span className="w-2 h-2 bg-pink-400 rounded-full"></span>}
-            </button>
-
-            {/* Results */}
-            <span className="text-sm text-gray-400">
-              {filteredMashups.length} resultados
-            </span>
-
-            {hasActiveFilters && (
-              <button onClick={clearFilters} className="text-sm text-pink-400 hover:text-pink-300">
-                Limpiar
-              </button>
-            )}
-
-            {/* View Toggle */}
-            <div className="flex items-center bg-gray-900 rounded-lg border border-gray-700 p-0.5">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-pink-600 text-white' : 'text-gray-400 hover:text-white'}`}
-              >
-                <Grid3X3 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-md transition-colors ${viewMode === 'list' ? 'bg-pink-600 text-white' : 'text-gray-400 hover:text-white'}`}
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Expanded Filters */}
-          {showFilters && (
-            <div className="mt-4 pt-4 border-t border-gray-700">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* BPM Range Slider */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-3">
-                    Rango BPM: <span className="text-pink-400">{bpmRange[0]} - {bpmRange[1]}</span>
-                  </label>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-4">
-                      <span className="text-xs text-gray-500 w-8">Min</span>
-                      <input
-                        type="range"
-                        min="0"
-                        max="200"
-                        value={bpmRange[0]}
-                        onChange={(e) => setBpmRange([Math.min(Number(e.target.value), bpmRange[1] - 10), bpmRange[1]])}
-                        className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-pink-500"
-                      />
-                      <input
-                        type="number"
-                        value={bpmRange[0]}
-                        onChange={(e) => setBpmRange([Math.min(Number(e.target.value), bpmRange[1] - 10), bpmRange[1]])}
-                        className="w-16 bg-gray-900 border border-gray-700 rounded px-2 py-1 text-sm text-white text-center"
-                      />
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <span className="text-xs text-gray-500 w-8">Max</span>
-                      <input
-                        type="range"
-                        min="0"
-                        max="200"
-                        value={bpmRange[1]}
-                        onChange={(e) => setBpmRange([bpmRange[0], Math.max(Number(e.target.value), bpmRange[0] + 10)])}
-                        className="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-pink-500"
-                      />
-                      <input
-                        type="number"
-                        value={bpmRange[1]}
-                        onChange={(e) => setBpmRange([bpmRange[0], Math.max(Number(e.target.value), bpmRange[0] + 10)])}
-                        className="w-16 bg-gray-900 border border-gray-700 rounded px-2 py-1 text-sm text-white text-center"
-                      />
-                    </div>
-                  </div>
-                  {/* Quick BPM Presets */}
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {[
-                      { label: 'Todo', range: [0, 200] },
-                      { label: 'Lento', range: [0, 90] },
-                      { label: 'Medio', range: [90, 120] },
-                      { label: 'Rápido', range: [120, 150] },
-                      { label: 'Muy Rápido', range: [150, 200] },
-                    ].map((preset) => (
-                      <button
-                        key={preset.label}
-                        onClick={() => setBpmRange(preset.range as [number, number])}
-                        className={`px-2 py-1 rounded text-xs font-medium transition-colors ${bpmRange[0] === preset.range[0] && bpmRange[1] === preset.range[1]
-                          ? 'bg-pink-600 text-white'
-                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                          }`}
-                      >
-                        {preset.label}
-                      </button>
+              {/* Right Actions */}
+              <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+                {/* Sort */}
+                <div className="relative min-w-[140px]">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full appearance-none bg-zinc-900 border border-zinc-800 rounded-full pl-4 pr-10 py-2.5 text-sm text-zinc-300 focus:outline-none focus:border-zinc-700 cursor-pointer hover:bg-zinc-800/50 transition-colors"
+                  >
+                    {sortOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
-                  </div>
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 pointer-events-none" />
                 </div>
 
-                {/* Sort Options */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-3">
-                    Ordenar por
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {sortOptions.map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => setSortBy(opt.value)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${sortBy === opt.value
-                          ? 'bg-pink-600 text-white'
-                          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                          }`}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
+                {/* Filter Toggle */}
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm font-medium transition-all whitespace-nowrap ${showFilters || hasActiveFilters ? 'bg-zinc-800 border-zinc-700 text-white' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700'}`}
+                >
+                  <SlidersHorizontal className="w-4 h-4" />
+                  <span>Filtros</span>
+                  {hasActiveFilters && <div className="w-1.5 h-1.5 rounded-full bg-pink-500" />}
+                </button>
+
+                {/* View Mode */}
+                <div className="flex items-center bg-zinc-900 rounded-full border border-zinc-800 p-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-full transition-all ${viewMode === 'grid' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-full transition-all ${viewMode === 'list' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Extended Filters */}
+            {showFilters && (
+              <div className="pt-4 border-t border-white/5 animate-in slide-in-from-top-2">
+                <div className="flex flex-col sm:flex-row gap-8">
+                  {/* BPM Input */}
+                  <div className="w-full sm:max-w-xs space-y-3">
+                    <div className="flex items-center justify-between text-sm text-zinc-400">
+                      <span>Rango BPM</span>
+                      <span className="text-white font-mono">{bpmRange[0]} - {bpmRange[1]}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-zinc-600 font-mono w-8">MIN</span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="200"
+                        value={bpmRange[0]}
+                        onChange={(e) => setBpmRange([Math.min(Number(e.target.value), bpmRange[1] - 10), bpmRange[1]])}
+                        className="flex-1 h-1.5 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-white"
+                      />
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs text-zinc-600 font-mono w-8">MAX</span>
+                      <input
+                        type="range"
+                        min="0"
+                        max="200"
+                        value={bpmRange[1]}
+                        onChange={(e) => setBpmRange([bpmRange[0], Math.max(Number(e.target.value), bpmRange[0] + 10)])}
+                        className="flex-1 h-1.5 bg-zinc-800 rounded-full appearance-none cursor-pointer accent-white"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quick Presets */}
+                  <div className="flex-1 space-y-3">
+                    <span className="text-sm text-zinc-400">Presets Rápidos</span>
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { label: 'Todo', range: [0, 200] },
+                        { label: 'Lento <90', range: [0, 90] },
+                        { label: 'Medio 90-120', range: [90, 120] },
+                        { label: 'House 120-130', range: [120, 130] },
+                        { label: 'Rápido >130', range: [130, 200] },
+                      ].map((preset) => (
+                        <button
+                          key={preset.label}
+                          onClick={() => setBpmRange(preset.range as [number, number])}
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${bpmRange[0] === preset.range[0] && bpmRange[1] === preset.range[1]
+                            ? 'bg-white text-black border-white'
+                            : 'bg-transparent text-zinc-400 border-zinc-800 hover:border-zinc-600 hover:text-zinc-200'
+                            }`}
+                        >
+                          {preset.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* Content Area */}
+        <div className="max-w-7xl mx-auto p-4 lg:p-8">
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center py-32 opacity-50">
+              <Loader className="w-8 h-8 animate-spin text-zinc-600 mb-4" />
+              <p className="text-sm text-zinc-600">Cargando...</p>
+            </div>
+          ) : filteredMashups.length > 0 ? (
+            <>
+              <MashupList mashups={currentMashups} viewMode={viewMode} />
+
+              {totalPages > 1 && (
+                <div className="mt-12 flex justify-center">
+                  <div className="bg-zinc-900/50 border border-zinc-800 rounded-full px-4 py-2">
+                    <Pagination>
+                      <PaginationPrevious
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        className={currentPage === 1 ? 'opacity-30 pointer-events-none' : 'hover:bg-zinc-800 hover:text-white transition-colors cursor-pointer'}
+                      />
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+
+                        return (
+                          <PaginationItem key={pageNum}>
+                            <PaginationLink
+                              onClick={() => handlePageChange(pageNum)}
+                              isActive={currentPage === pageNum}
+                              className={`cursor-pointer w-8 h-8 rounded-full flex items-center justify-center transition-colors ${currentPage === pageNum ? 'bg-white text-black font-bold' : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'}`}
+                            >
+                              {pageNum}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+                      <PaginationNext
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        className={currentPage === totalPages ? 'opacity-30 pointer-events-none' : 'hover:bg-zinc-800 hover:text-white transition-colors cursor-pointer'}
+                      />
+                    </Pagination>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-32 text-center">
+              <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mb-6 border border-zinc-800">
+                <Search className="w-6 h-6 text-zinc-600" />
+              </div>
+              <h3 className="text-xl font-medium text-white mb-2">No encontramos resultados</h3>
+              <p className="text-zinc-500 max-w-sm mx-auto mb-6">Intentá ajustar tu búsqueda o los filtros para encontrar lo que buscás.</p>
+              <button
+                onClick={clearFilters}
+                className="text-sm font-medium text-pink-500 hover:text-pink-400 transition-colors"
+              >
+                Limpiar todos los filtros
+              </button>
             </div>
           )}
         </div>
-
-        {/* Content */}
-        {isLoading ? (
-          <div className="flex items-center justify-center py-24">
-            <div className="text-center">
-              <div className="relative">
-                <div className="w-16 h-16 rounded-full border-4 border-pink-500/20 border-t-pink-500 animate-spin mx-auto"></div>
-                <Music className="w-6 h-6 text-pink-500 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
-              </div>
-              <p className="text-gray-400 mt-6 text-lg">Cargando beats increíbles...</p>
-            </div>
-          </div>
-        ) : error ? (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 text-center">
-            <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <X className="w-8 h-8 text-red-400" />
-            </div>
-            <p className="text-red-400 text-lg mb-4">{error}</p>
-            <Button onClick={() => window.location.reload()} variant="outline" className="border-red-500/50">
-              Reintentar
-            </Button>
-          </div>
-        ) : filteredMashups.length === 0 ? (
-          <div className="text-center py-24 bg-gray-900/50 rounded-2xl border border-gray-700/50">
-            <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Music className="w-10 h-10 text-gray-600" />
-            </div>
-            <h3 className="text-2xl font-bold text-white mb-3">No se encontraron mashups</h3>
-            <p className="text-gray-400 mb-8 max-w-md mx-auto">
-              {hasActiveFilters ? 'Intenta ajustar los filtros' : '¡Sé el primero en crear un mashup!'}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              {hasActiveFilters && (
-                <Button onClick={clearFilters} variant="outline">
-                  Limpiar Filtros
-                </Button>
-              )}
-              <Link href="/mashups/create">
-                <Button className="bg-gradient-to-r from-pink-600 to-purple-600 shadow-lg shadow-pink-500/25">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Crear Mashup
-                </Button>
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <>
-            <MashupList mashups={currentMashups} viewMode={viewMode} />
-
-            {totalPages > 1 && (
-              <div className="mt-12 flex justify-center">
-                <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-3">
-                  <Pagination>
-                    <PaginationPrevious
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      className={currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-700'}
-                    >
-                      Anterior
-                    </PaginationPrevious>
-
-                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        pageNum = i + 1;
-                      } else if (currentPage <= 3) {
-                        pageNum = i + 1;
-                      } else if (currentPage >= totalPages - 2) {
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        pageNum = currentPage - 2 + i;
-                      }
-
-                      return (
-                        <PaginationItem key={pageNum}>
-                          <PaginationLink
-                            onClick={() => handlePageChange(pageNum)}
-                            isActive={currentPage === pageNum}
-                            className={`cursor-pointer ${currentPage === pageNum ? 'bg-pink-600' : ''}`}
-                          >
-                            {pageNum}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })}
-
-                    <PaginationNext
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      className={currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-700'}
-                    >
-                      Siguiente
-                    </PaginationNext>
-                  </Pagination>
-                </div>
-              </div>
-            )}
-          </>
-        )}
       </div>
     </AppLayout>
   );

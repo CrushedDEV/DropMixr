@@ -128,7 +128,7 @@ class MashupController extends Controller
                 'file_size' => $newFileSize,
                 'image_path' => $imagePath,
                 'user_id' => $user?->id,
-                'type' => $validated['type'] ?? 'Mashup',
+                // 'type' => $validated['type'] ?? 'Mashup',
                 'is_public' => $validated['is_public'] ?? true,
                 'is_approved' => false,
                 'status' => 'pending',
@@ -146,6 +146,18 @@ class MashupController extends Controller
                 // Content Validation: If preview fails, assume corrupt file and fail upload
                 Log::error('Failed to generate preview on upload: ' . $e->getMessage());
                 throw new \Exception("El archivo de audio parece inválido o corrupto. No se pudo procesar.");
+            }
+
+            // Notify Discord
+            try {
+                app(\App\Services\DiscordNotificationService::class)->notifyNewContent(
+                    'Mashup',
+                    $mashup->title,
+                    $user->name,
+                    route('admin.dashboard')
+                );
+            } catch (\Exception $e) {
+                Log::error('Notification failed: ' . $e->getMessage());
             }
 
             return redirect()->route('explore')->with('success', 'Mashup subido exitosamente. Está pendiente de aprobación.');
@@ -259,5 +271,31 @@ class MashupController extends Controller
             // Para almacenamiento local
             return Storage::disk($disk)->download($mashup->file_path);
         }
+    }
+    public function stream(Mashup $mashup)
+    {
+        $disk = config('filesystems.default', 'public');
+        $path = $mashup->file_path;
+
+        // if (!$path || !Storage::disk($disk)->exists($path)) {
+        //     Log::warning("Stream: File not found via Storage::exists: " . $path);
+        //     // abort(404); // Let response()->file try, it might be a windows path thing
+        // }
+
+        // Handle local disk
+        if ($disk === 'public' || $disk === 'local') {
+            $fullPath = Storage::disk($disk)->path($path);
+            return response()->file($fullPath);
+        }
+
+        // Handle S3 or others (Redirect to temporary URL)
+        if ($disk === 's3') {
+            return redirect(Storage::disk('s3')->temporaryUrl(
+                $path,
+                now()->addMinutes(60)
+            ));
+        }
+
+        abort(400, 'Unsupported filesystem driver for streaming.');
     }
 }

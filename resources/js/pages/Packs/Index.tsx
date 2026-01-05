@@ -1,6 +1,6 @@
 import { Head, usePage, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { Package, ShoppingCart, User, Music } from 'lucide-react';
+import { Package, ShoppingCart, User, Music, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Pack {
@@ -15,7 +15,8 @@ interface Pack {
     mashups_count?: number;
     mashups?: {
         id: number;
-        image_path: string;
+        title: string;
+        image_path?: string;
     }[];
 }
 
@@ -26,83 +27,106 @@ export default function PacksIndex({ packs }: { packs: Pack[] }) {
         <AppLayout breadcrumbs={[{ title: 'Explorar Packs', href: '/packs' }]}>
             <Head title="Explorar Packs" />
 
-            <div className="p-6 max-w-7xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
-                            Packs de Mashups
-                        </h1>
-                        <p className="text-gray-400 mt-2">Colecciones curadas de los mejores mashups.</p>
-                    </div>
+            <div className="min-h-screen bg-black">
+                {/* Header / Hero */}
+                <div className="pt-12 pb-8 px-4 lg:px-8 border-b border-white/5">
+                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
+                        <div>
+                            <h1 className="text-4xl md:text-6xl font-bold tracking-tighter text-white mb-2">
+                                Packs<span className="text-pink-600">.</span>
+                            </h1>
+                            <p className="text-zinc-400 text-lg max-w-xl font-light">
+                                Colecciones curadas y exclusivas para DJs y productores.
+                            </p>
+                        </div>
 
-                    {auth.user && (
-                        <Link href={route('packs.create')}>
-                            <Button className="bg-pink-600 hover:bg-pink-700">
-                                <Package className="w-4 h-4 mr-2" />
-                                Crear Pack
-                            </Button>
-                        </Link>
-                    )}
+                        {auth.user && (
+                            <Link href={route('packs.create')}>
+                                <Button className="rounded-full bg-white text-black hover:bg-zinc-200 font-medium px-6">
+                                    <Package className="w-4 h-4 mr-2" />
+                                    Crear Pack
+                                </Button>
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {packs.length > 0 ? (
-                        packs.map((pack) => (
-                            <Link key={pack.id} href={route('packs.show', pack.id)} className="block group">
-                                <div className="bg-gray-900 rounded-xl overflow-hidden border border-gray-800 transition-all hover:border-pink-500/50 hover:shadow-lg hover:shadow-pink-500/10">
-                                    <div className="relative aspect-[16/9] bg-gray-800 overflow-hidden">
+                {/* Grid Content */}
+                <div className="max-w-7xl mx-auto px-4 lg:px-8 py-12">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        {packs.length > 0 ? (
+                            packs.map((pack) => (
+                                <Link key={pack.id} href={route('packs.show', pack.id)} className="group block">
+                                    {/* Cover Image */}
+                                    <div className="relative aspect-square overflow-hidden rounded-2xl bg-zinc-900 mb-4 shadow-lg">
                                         {pack.cover_image_path ? (
-                                            <img src={pack.cover_image_path} alt={pack.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                            <img
+                                                src={pack.cover_image_path}
+                                                alt={pack.title}
+                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                            />
                                         ) : (
-                                            // Fallback collage if no cover
-                                            <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
-                                                <Music className="w-16 h-16 text-gray-600" />
+                                            <div className="absolute inset-0 flex items-center justify-center bg-zinc-800 text-zinc-600">
+                                                <Music className="w-16 h-16 opacity-50" />
                                             </div>
                                         )}
-                                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent opacity-90" />
 
-                                        <div className="absolute bottom-3 left-3 right-3 flex justify-between items-end">
-                                            <div className="bg-black/50 backdrop-blur-sm px-2 py-1 rounded-md">
-                                                <p className="text-xs font-semibold text-white flex items-center gap-1">
-                                                    <User className="w-3 h-3" /> {pack.user.name}
-                                                </p>
-                                            </div>
-                                            <div className="bg-purple-600 px-2 py-1 rounded-md shadow-lg">
-                                                <p className="text-xs font-bold text-white flex items-center gap-1">
-                                                    {pack.price} Créditos
-                                                </p>
+                                        {/* Overlay Info (Price) */}
+                                        <div className="absolute top-3 right-3">
+                                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-white/10 text-white text-xs font-bold">
+                                                <span>{pack.price}</span>
+                                                <Coins className="w-3 h-3 text-yellow-500" />
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="p-4">
-                                        <h3 className="text-lg font-bold text-white group-hover:text-pink-400 transition-colors mb-2">
-                                            {pack.title}
-                                        </h3>
-                                        <p className="text-sm text-gray-400 line-clamp-2 mb-4">
-                                            {pack.description || "Sin descripción"}
-                                        </p>
-
-                                        <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-800 pt-3">
-                                            <span className="flex items-center gap-1.5">
-                                                <Music className="w-3.5 h-3.5" />
-                                                Pack de Música
-                                            </span>
-                                            <span className="flex items-center gap-1 text-pink-500 font-medium">
-                                                Ver Detalles &rarr;
-                                            </span>
+                                    {/* Text Info */}
+                                    <div className="space-y-3">
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white leading-tight group-hover:text-pink-500 transition-colors">
+                                                {pack.title}
+                                            </h3>
+                                            <div className="flex items-center justify-between mt-1">
+                                                <p className="text-sm text-zinc-400 font-medium">
+                                                    {pack.user.name}
+                                                </p>
+                                                {pack.mashups_count !== undefined && (
+                                                    <span className="text-xs text-zinc-600">
+                                                        {pack.mashups_count} tracks
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
+
+                                        {/* Mini Track List */}
+                                        {pack.mashups && pack.mashups.length > 0 && (
+                                            <div className="space-y-1 pt-2 border-t border-white/5">
+                                                {pack.mashups.slice(0, 3).map((mashup) => (
+                                                    <div key={mashup.id} className="flex items-center gap-2 text-xs text-zinc-500">
+                                                        <Music className="w-3 h-3 text-zinc-700" />
+                                                        <span className="truncate">{mashup.title}</span>
+                                                    </div>
+                                                ))}
+                                                {pack.mashups.length > 3 && (
+                                                    <p className="text-[10px] text-zinc-600 pl-5">
+                                                        + {pack.mashups.length - 3} más...
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
+                                </Link>
+                            ))
+                        ) : (
+                            <div className="col-span-full py-24 text-center">
+                                <div className="w-20 h-20 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-6 border border-zinc-800">
+                                    <Package className="w-8 h-8 text-zinc-600" />
                                 </div>
-                            </Link>
-                        ))
-                    ) : (
-                        <div className="col-span-full py-16 text-center bg-gray-900/50 rounded-xl border border-gray-800">
-                            <Package className="w-16 h-16 text-gray-700 mx-auto mb-4" />
-                            <h3 className="text-xl font-semibold text-gray-300">No hay packs disponibles</h3>
-                            <p className="text-gray-500 mt-2">¡Sé el primero en crear uno!</p>
-                        </div>
-                    )}
+                                <h3 className="text-xl font-medium text-white mb-2">No hay packs disponibles</h3>
+                                <p className="text-zinc-500">Pronto se añadirán nuevas colecciones.</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </AppLayout>

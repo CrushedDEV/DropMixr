@@ -124,7 +124,7 @@ export function AudioPlayerProvider({ children }: AudioPlayerProviderProps) {
 
             const response = await fetch(fetchUrl, {
                 headers: {
-                    'X-Dropmix-Stream': 'true', // The secret handshake
+                    'X-dropmixr-Stream': 'true', // The secret handshake
                     'Accept': 'audio/mpeg, audio/*'
                 }
             });

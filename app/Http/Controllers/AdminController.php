@@ -11,7 +11,7 @@ use Inertia\Inertia;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $disk = config('filesystems.default', 'public');
 
@@ -25,7 +25,32 @@ class AdminController extends Controller
                 return $mashup;
             });
 
-        $allMashups = Mashup::with('user')->withTrashed()->latest()->paginate(10, ['*'], 'mashups_page');
+        $pendingPacks = Pack::where('status', 'pending')
+            ->with(['user', 'mashups.user'])
+            ->latest()
+            ->get()
+            ->map(function ($pack) use ($disk) {
+                $pack->mashups->transform(function ($mashup) use ($disk) {
+                    $mashup->audio_url = $mashup->file_path ? \Illuminate\Support\Facades\Storage::disk($disk)->url($mashup->file_path) : null;
+                    return $mashup;
+                });
+                return $pack;
+            });
+
+        $search = $request->input('search');
+
+        $allMashupsQuery = Mashup::with('user')->withTrashed()->latest();
+
+        if ($search) {
+            $allMashupsQuery->where(function ($query) use ($search) {
+                $query->where('title', 'like', "%{$search}%")
+                    ->orWhereHas('user', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $allMashups = $allMashupsQuery->paginate(10, ['*'], 'mashups_page')->withQueryString();
         $allMashups->getCollection()->transform(function ($mashup) use ($disk) {
             $mashup->audio_url = $mashup->file_path ? \Illuminate\Support\Facades\Storage::disk($disk)->url($mashup->file_path) : null;
             return $mashup;
@@ -38,6 +63,7 @@ class AdminController extends Controller
             'total_mashups' => Mashup::count(),
             'approved_mashups' => Mashup::where('status', 'approved')->count(),
             'pending_mashups' => Mashup::where('status', 'pending')->count(),
+            'pending_packs' => Pack::where('status', 'pending')->count(),
             'rejected_mashups' => Mashup::where('status', 'rejected')->count(),
             'total_users' => User::count(),
             'total_packs' => Pack::count(),
@@ -45,12 +71,13 @@ class AdminController extends Controller
         ];
 
         return Inertia::render('Admin/Dashboard', [
-            'pendingMashups' => $pendingMashups, // Renamed for clarity, logic in frontend needs update or mapping
-            'mashups' => $pendingMashups, // Keep for backward compatibility if needed, but I'll update frontend
+            'pendingMashups' => $pendingMashups,
+            'pendingPacks' => $pendingPacks,
             'allMashups' => $allMashups,
             'allPacks' => $allPacks,
             'allUsers' => $allUsers,
             'stats' => $stats,
+            'filters' => $request->only(['search']),
         ]);
     }
 
@@ -66,6 +93,12 @@ class AdminController extends Controller
         $reward = \App\Models\Setting::where('key', 'credit_reward_upload')->first()?->value ?? 5;
         $mashup->user->increment('credits', (int) $reward);
 
+        // Notify Discord
+        try {
+            app(\App\Services\DiscordNotificationService::class)->notifyReviewResult('Mashup', $mashup->title, 'approved', $mashup->user->name);
+        } catch (\Exception $e) {
+        }
+
         return redirect()->back()->with('success', 'Mashup aprobado y créditos otorgados.');
     }
 
@@ -77,7 +110,47 @@ class AdminController extends Controller
             'is_public' => false,
         ]);
 
+        // Notify Discord
+        try {
+            app(\App\Services\DiscordNotificationService::class)->notifyReviewResult('Mashup', $mashup->title, 'rejected', $mashup->user->name);
+        } catch (\Exception $e) {
+        }
+
         return redirect()->back()->with('success', 'Mashup rechazado.');
+    }
+
+    public function approvePack(Pack $pack)
+    {
+        $pack->update([
+            'is_approved' => true,
+            'status' => 'approved',
+            'is_public' => true,
+        ]);
+
+        // Notify Discord
+        try {
+            app(\App\Services\DiscordNotificationService::class)->notifyReviewResult('Pack', $pack->title, 'approved', $pack->user->name);
+        } catch (\Exception $e) {
+        }
+
+        return redirect()->back()->with('success', 'Pack aprobado.');
+    }
+
+    public function rejectPack(Pack $pack)
+    {
+        $pack->update([
+            'is_approved' => false,
+            'status' => 'rejected',
+            'is_public' => false,
+        ]);
+
+        // Notify Discord
+        try {
+            app(\App\Services\DiscordNotificationService::class)->notifyReviewResult('Pack', $pack->title, 'rejected', $pack->user->name);
+        } catch (\Exception $e) {
+        }
+
+        return redirect()->back()->with('success', 'Pack rechazado.');
     }
 
     public function destroyMashup($id)
@@ -166,6 +239,7 @@ class AdminController extends Controller
             'storage_limit_mb' => 'required|integer|min:10',
             'daily_upload_limit' => 'required|integer|min:1',
             'max_file_size_mb' => 'required|integer|min:1',
+            'discord_webhook_url' => 'nullable|url',
         ]);
 
         foreach ($validated as $key => $value) {

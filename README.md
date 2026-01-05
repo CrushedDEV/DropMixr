@@ -1,5 +1,5 @@
-# DropMix - Plataforma de Mashups para DJs y Productores
-> ⚠️ **Disclaimer:** DropMix is a long-term project and currently a work in progress (WIP). Development has been temporarily paused, but it will continue in the future as time allows.
+# DropMixr - Plataforma de Mashups para DJs y Productores
+> ⚠️ **Disclaimer:** DropMixr is a long-term project and currently a work in progress (WIP). Development has been temporarily paused, but it will continue in the future as time allows.
 
 **DropMixr** es una plataforma donde DJs y productores pueden compartir, intercambiar y descargar mashups de música. La plataforma incluye un sistema de créditos, packs de música, y herramientas de moderación y administración.
 ![DropMixr Banner](/public/images/og-image.jpg)
@@ -37,8 +37,8 @@ Sigue estos pasos para desplegar la aplicación en un entorno de producción (VP
 ### 1. Obtener el Código
 Clona el repositorio en tu servidor:
 ```bash
-git clone https://github.com/tu_usuario/dropmix.git
-cd dropmix
+git clone https://github.com/tu_usuario/dropmixr.git
+cd dropmixr
 ```
 
 ### 2. Instalar Dependencias
@@ -113,7 +113,7 @@ Ejemplo de configuración para Nginx. Asegúrate de apuntar el `root` a la carpe
 server {
     listen 80;
     server_name tu-dominio.com;
-    root /var/www/dropmix/public;
+    root /var/www/dropmixr/public;
 
     add_header X-Frame-Options "SAMEORIGIN";
     add_header X-Content-Type-Options "nosniff";
@@ -152,7 +152,7 @@ php artisan tinker
 // Dentro de tinker:
 $user = App\Models\User::factory()->create([
     'name' => 'Admin',
-    'email' => 'admin@dropmix.com',
+    'email' => 'admin@dropmixr.com',
     'password' => bcrypt('password'),
     'role' => 'admin' // Asegúrate de tener este campo en tu BD o ajustar según tu lógica de roles
 ]);

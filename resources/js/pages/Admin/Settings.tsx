@@ -24,6 +24,7 @@ export default function AdminSettings({ settings }: Props) {
     const [storageLimitMb, setStorageLimitMb] = useState(findSetting('storage_limit_mb'));
     const [dailyUploadLimit, setDailyUploadLimit] = useState(findSetting('daily_upload_limit'));
     const [maxFileSizeMb, setMaxFileSizeMb] = useState(findSetting('max_file_size_mb'));
+    const [discordWebhookUrl, setDiscordWebhookUrl] = useState(findSetting('discord_webhook_url') === '0' ? '' : findSetting('discord_webhook_url'));
     const [saving, setSaving] = useState(false);
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -35,6 +36,7 @@ export default function AdminSettings({ settings }: Props) {
             storage_limit_mb: storageLimitMb,
             daily_upload_limit: dailyUploadLimit,
             max_file_size_mb: maxFileSizeMb,
+            discord_webhook_url: discordWebhookUrl,
         }, {
             onSuccess: () => setSaving(false),
             onError: () => setSaving(false),
@@ -149,6 +151,29 @@ export default function AdminSettings({ settings }: Props) {
                                     className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 transition-colors"
                                 />
                             </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-6">
+                        <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                            <span className="text-2xl">📢</span>
+                            Notificaciones
+                        </h2>
+
+                        <div>
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-300 mb-2">
+                                Discord Webhook URL
+                            </label>
+                            <input
+                                type="url"
+                                placeholder="https://discord.com/api/webhooks/..."
+                                value={discordWebhookUrl}
+                                onChange={(e) => setDiscordWebhookUrl(e.target.value)}
+                                className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-pink-500 transition-colors"
+                            />
+                            <p className="mt-1.5 text-sm text-gray-500">
+                                URL del Webhook de Discord para avisar de nuevos contenidos.
+                            </p>
                         </div>
                     </div>
 

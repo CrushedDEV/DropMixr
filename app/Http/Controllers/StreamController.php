@@ -12,7 +12,7 @@ class StreamController extends Controller
     {
         try {
             // 1. Security Check: Require custom header identifying the player
-            if (!$request->hasHeader('X-Dropmix-Stream')) {
+            if (!$request->hasHeader('X-dropmixr-Stream')) {
                 abort(403, 'Direct access denied.');
             }
 

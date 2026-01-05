@@ -52,7 +52,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/mashups/{mashup}', [MashupController::class, 'update'])->name('mashups.update');
     Route::delete('/mashups/{mashup}', [MashupController::class, 'destroy'])->name('mashups.destroy');
     Route::get('/mashups/{mashup}/download', [MashupController::class, 'download'])->name('mashups.download');
-    Route::get('/mashups/{mashup}/stream', [\App\Http\Controllers\StreamController::class, 'stream'])->name('mashups.stream'); // Protected secure stream using header check
+    Route::get('/mashups/{mashup}/stream', [MashupController::class, 'stream'])->name('mashups.stream'); // Protected secure stream using header check
 
     // Pack Routes
     Route::get('/packs/create', [PackController::class, 'create'])->name('packs.create');
@@ -66,7 +66,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->middleware('admin')->name('admin.')->group(function () {
         Route::get('/', [AdminController::class, 'index'])->name('dashboard');
         Route::put('/mashups/{mashup}/approve', [AdminController::class, 'approve'])->name('mashups.approve');
+        Route::put('/mashups/{mashup}/approve', [AdminController::class, 'approve'])->name('mashups.approve');
         Route::put('/mashups/{mashup}/reject', [AdminController::class, 'reject'])->name('mashups.reject');
+
+        Route::put('/packs/{pack}/approve', [AdminController::class, 'approvePack'])->name('packs.approve');
+        Route::put('/packs/{pack}/reject', [AdminController::class, 'rejectPack'])->name('packs.reject');
 
         // Extended Admin Management
         Route::delete('/mashups/{id}', [AdminController::class, 'destroyMashup'])->name('mashups.delete');

@@ -16,6 +16,7 @@ interface Pack {
     mashups_count: number;
     created_at: string;
     deleted_at: string | null;
+    mashups: Mashup[]; // Added mashups list
 }
 
 interface User {
@@ -60,20 +61,49 @@ interface Stats {
     rejected_mashups: number;
     total_users: number;
     total_packs: number;
+
     total_credits_distributed: number;
+    pending_packs: number; // Added
 }
 
 interface Props {
     pendingMashups: Mashup[];
+    pendingPacks: Pack[]; // Added
     allMashups: PaginatedResponse<Mashup>;
     allPacks: PaginatedResponse<Pack>;
     allUsers: PaginatedResponse<User>;
     stats: Stats;
+    filters?: {
+        search?: string;
+    };
 }
 
-export default function AdminDashboard({ pendingMashups = [], allMashups, allPacks, allUsers, stats }: Props) {
+export default function AdminDashboard({ pendingMashups = [], pendingPacks = [], allMashups, allPacks, allUsers, stats, filters }: Props) {
     const [loading, setLoading] = useState<number | null>(null);
-    const [activeTab, setActiveTab] = useState<'pending' | 'users' | 'mashups' | 'packs'>('pending');
+    const [activeTab, setActiveTab] = useState<'pending' | 'pending_packs' | 'users' | 'mashups' | 'packs'>('pending');
+    const [search, setSearch] = useState(filters?.search || '');
+    const [expandedPacks, setExpandedPacks] = useState<number[]>([]); // Track expanded packs
+
+    const togglePack = (packId: number) => {
+        setExpandedPacks(prev =>
+            prev.includes(packId) ? prev.filter(id => id !== packId) : [...prev, packId]
+        );
+    };
+
+    // Debounce Search
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (search !== (filters?.search || '')) {
+                router.get(
+                    route('admin.dashboard'),
+                    { search: search },
+                    { preserveState: true, replace: true, preserveScroll: true }
+                );
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [search]);
 
     const { currentTrack, isPlaying, play, pause, toggle } = useAudioPlayer();
     const { flash } = usePage().props as any;
@@ -126,6 +156,24 @@ export default function AdminDashboard({ pendingMashups = [], allMashups, allPac
 
     const handleRestoreUser = (id: number) => {
         router.post(`/admin/users/${id}/restore`, {}, { preserveScroll: true });
+    };
+
+    const handleApprovePack = (id: number) => {
+        setLoading(id);
+        router.put(`/admin/packs/${id}/approve`, {}, {
+            preserveScroll: true,
+            onSuccess: () => setLoading(null),
+            onError: () => setLoading(null),
+        });
+    };
+
+    const handleRejectPack = (id: number) => {
+        setLoading(id);
+        router.put(`/admin/packs/${id}/reject`, {}, {
+            preserveScroll: true,
+            onSuccess: () => setLoading(null),
+            onError: () => setLoading(null),
+        });
     };
 
     const handleDeletePack = (id: number) => {
@@ -221,6 +269,15 @@ export default function AdminDashboard({ pendingMashups = [], allMashups, allPac
                             </span>
                         </button>
                         <button
+                            onClick={() => setActiveTab('pending_packs')}
+                            className={`pb-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeTab === 'pending_packs' ? 'text-orange-500 border-orange-500' : 'text-gray-400 border-transparent hover:text-white'}`}
+                        >
+                            <span className="flex items-center gap-2">
+                                <Package className="w-4 h-4" />
+                                Packs Pendientes ({stats.pending_packs})
+                            </span>
+                        </button>
+                        <button
                             onClick={() => setActiveTab('mashups')}
                             className={`pb-2 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${activeTab === 'mashups' ? 'text-purple-500 border-purple-500' : 'text-gray-400 border-transparent hover:text-white'}`}
                         >
@@ -249,204 +306,291 @@ export default function AdminDashboard({ pendingMashups = [], allMashups, allPac
                         </button>
                     </div>
 
-                    <div className="p-6">
-                        {/* PENDING MASHUPS TAB */}
-                        {activeTab === 'pending' && (
-                            <div className="space-y-4">
-                                {pendingMashups.length === 0 ? (
-                                    <div className="text-center py-16">
-                                        <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                                            <Check className="h-8 w-8 text-green-500" />
-                                        </div>
-                                        <h3 className="text-xl font-semibold text-gray-300 mb-2">¡Todo al día!</h3>
-                                        <p className="text-gray-400">No hay mashups pendientes de revisión.</p>
+
+                    {/* Search Input for Mashups and Users */}
+                    {(activeTab === 'mashups' || activeTab === 'users' || activeTab === 'packs') && (
+                        <div className="mb-4">
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <Search className="h-5 w-5 text-gray-500" />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder={`Buscar ${activeTab === 'users' ? 'usuarios' : activeTab === 'packs' ? 'packs' : 'mashups'}...`}
+                                    className="block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-md leading-5 bg-black/40 text-gray-300 placeholder-gray-500 focus:outline-none focus:bg-black/60 focus:border-pink-500 focus:ring-1 focus:ring-pink-500 sm:text-sm transition duration-150 ease-in-out"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* PENDING MASHUPS TAB */}
+                    {activeTab === 'pending' && (
+                        <div className="space-y-4">
+                            {pendingMashups.length === 0 ? (
+                                <div className="text-center py-16">
+                                    <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Check className="h-8 w-8 text-green-500" />
                                     </div>
-                                ) : (
-                                    pendingMashups.map((mashup) => (
-                                        <div key={mashup.id} className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-4 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                                            <div>
-                                                <div className="flex items-center gap-3">
-                                                    <button
-                                                        onClick={() => handlePlayPause(mashup)}
-                                                        disabled={!mashup.audio_url}
-                                                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${!mashup.audio_url ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-pink-500/20 text-pink-500 hover:bg-pink-500 hover:text-white'}`}
-                                                    >
-                                                        {currentTrack?.id === mashup.id && isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-                                                    </button>
-                                                    <h3 className="font-semibold text-white text-lg">{mashup.title}</h3>
-                                                </div>
-                                                <div className="flex gap-4 text-sm text-gray-400 mt-1">
-                                                    <span className="flex items-center gap-1"><User className="w-3 h-3" /> {mashup.user.name}</span>
-                                                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(mashup.created_at).toLocaleDateString()}</span>
-                                                    {mashup.bpm && <span>{mashup.bpm} BPM</span>}
-                                                </div>
+                                    <h3 className="text-xl font-semibold text-gray-300 mb-2">¡Todo al día!</h3>
+                                    <p className="text-gray-400">No hay mashups pendientes de revisión.</p>
+                                </div>
+                            ) : (
+                                pendingMashups.map((mashup) => (
+                                    <div key={mashup.id} className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-4 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                                        <div>
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => handlePlayPause(mashup)}
+                                                    disabled={!mashup.audio_url}
+                                                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${!mashup.audio_url ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-pink-500/20 text-pink-500 hover:bg-pink-500 hover:text-white'}`}
+                                                >
+                                                    {currentTrack?.id === mashup.id && isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+                                                </button>
+                                                <h3 className="font-semibold text-white text-lg">{mashup.title}</h3>
                                             </div>
-                                            <div className="flex gap-2 w-full md:w-auto">
-                                                <Button onClick={() => handleApprove(mashup.id)} disabled={loading === mashup.id} className="flex-1 bg-green-600 hover:bg-green-700">Aprobar</Button>
-                                                <Button onClick={() => handleReject(mashup.id)} disabled={loading === mashup.id} variant="destructive" className="flex-1">Rechazar</Button>
+                                            <div className="flex gap-4 text-sm text-gray-400 mt-1">
+                                                <span className="flex items-center gap-1"><User className="w-3 h-3" /> {mashup.user.name}</span>
+                                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(mashup.created_at).toLocaleDateString()}</span>
+                                                {mashup.bpm && <span>{mashup.bpm} BPM</span>}
                                             </div>
                                         </div>
-                                    ))
-                                )}
-                            </div>
-                        )}
+                                        <div className="flex gap-2 w-full md:w-auto">
+                                            <Button onClick={() => handleApprove(mashup.id)} disabled={loading === mashup.id} className="flex-1 bg-green-600 hover:bg-green-700">Aprobar</Button>
+                                            <Button onClick={() => handleReject(mashup.id)} disabled={loading === mashup.id} variant="destructive" className="flex-1">Rechazar</Button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
+                    {/* PENDING PACKS TAB */}
+                    {activeTab === 'pending_packs' && (
+                        <div className="space-y-4">
+                            {pendingPacks.length === 0 ? (
+                                <div className="text-center py-16">
+                                    <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <Check className="h-8 w-8 text-green-500" />
+                                    </div>
+                                    <h3 className="text-xl font-semibold text-gray-300 mb-2">¡Todo al día!</h3>
+                                    <p className="text-gray-400">No hay packs pendientes de revisión.</p>
+                                </div>
+                            ) : (
+                                pendingPacks.map((pack) => (
+                                    <div key={pack.id} className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-4 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                                        <div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                                    <Package className="w-6 h-6" />
+                                                </div>
+                                                <h3 className="font-semibold text-white text-lg">{pack.title}</h3>
+                                            </div>
+                                            <div className="flex gap-4 text-sm text-gray-400 mt-1 pl-13">
+                                                <span className="flex items-center gap-1"><User className="w-3 h-3" /> {pack.user.name}</span>
+                                                <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {new Date(pack.created_at).toLocaleDateString()}</span>
+                                                <span className="flex items-center gap-1"><Music className="w-3 h-3" /> {pack.mashups_count} Canciones</span>
+                                                <span className="flex items-center gap-1 text-yellow-500 font-medium"><Coins className="w-3 h-3" /> {pack.price}</span>
+                                            </div>
 
-                        {/* MASHUPS MANAGEMENT TAB */}
-                        {activeTab === 'mashups' && (
-                            <div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left text-sm text-gray-400">
-                                        <thead className="bg-gray-800 text-gray-200 uppercase text-xs">
-                                            <tr>
-                                                <th className="px-4 py-3">ID</th>
-                                                <th className="px-4 py-3">Título</th>
-                                                <th className="px-4 py-3">Usuario</th>
-                                                <th className="px-4 py-3">Estado</th>
-                                                <th className="px-4 py-3">Fecha</th>
-                                                <th className="px-4 py-3 text-right">Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-800">
-                                            {allMashups.data.map((mashup) => (
-                                                <tr key={mashup.id} className={`hover:bg-gray-800/30 ${mashup.deleted_at ? 'opacity-50 grayscale' : ''}`}>
-                                                    <td className="px-4 py-3 font-mono text-xs text-gray-500">#{mashup.id}</td>
-                                                    <td className="px-4 py-3 font-medium text-white">
-                                                        <div className="flex items-center gap-2">
-                                                            <button
-                                                                onClick={() => handlePlayPause(mashup)}
-                                                                disabled={!mashup.audio_url}
-                                                                className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors flex-shrink-0 ${!mashup.audio_url ? 'bg-gray-800 text-gray-600 cursor-not-allowed' : 'bg-gray-700 hover:bg-pink-600 text-white'}`}
-                                                            >
-                                                                {currentTrack?.id === mashup.id && isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 ml-0.5" />}
-                                                            </button>
-                                                            <span>{mashup.title}</span>
+                                            {/* Expand Button */}
+                                            <button
+                                                onClick={() => togglePack(pack.id)}
+                                                className="mt-3 text-sm text-pink-500 hover:text-pink-400 font-medium flex items-center gap-1 transition-colors"
+                                            >
+                                                {expandedPacks.includes(pack.id) ? 'Ocultar canciones' : 'Ver canciones'}
+                                            </button>
+
+                                            {/* Track List */}
+                                            {expandedPacks.includes(pack.id) && (
+                                                <div className="mt-4 space-y-2 bg-black/20 rounded-lg p-3 border border-gray-700/30">
+                                                    {pack.mashups?.map((mashup, index) => (
+                                                        <div key={mashup.id} className="flex items-center justify-between p-2 rounded hover:bg-white/5 transition-colors group">
+                                                            <div className="flex items-center gap-3">
+                                                                <span className="text-gray-500 text-xs w-4">{index + 1}</span>
+                                                                <button
+                                                                    onClick={() => handlePlayPause(mashup)}
+                                                                    disabled={!mashup.audio_url}
+                                                                    className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors flex-shrink-0 ${!mashup.audio_url ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-700 hover:bg-pink-600 text-white'}`}
+                                                                >
+                                                                    {currentTrack?.id === mashup.id && isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 ml-0.5" />}
+                                                                </button>
+                                                                <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">{mashup.title}</span>
+                                                            </div>
+                                                            {(mashup.bpm ?? 0) > 0 && (
+                                                                <span className="text-xs text-gray-500">{mashup.bpm} BPM</span>
+                                                            )}
                                                         </div>
-                                                        {mashup.deleted_at && <span className="ml-2 px-1.5 py-0.5 bg-red-900/50 text-red-400 text-[10px] rounded">ELIMINADO</span>}
-                                                    </td>
-                                                    <td className="px-4 py-3">{mashup.user.name}</td>
-                                                    <td className="px-4 py-3">
-                                                        <span className={`px-2 py-0.5 rounded textxs ${mashup.status === 'approved' ? 'bg-green-900/30 text-green-400' :
-                                                            mashup.status === 'rejected' ? 'bg-red-900/30 text-red-400' :
-                                                                'bg-amber-900/30 text-amber-400'
-                                                            }`}>
-                                                            {mashup.status}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-4 py-3">{new Date(mashup.created_at).toLocaleDateString()}</td>
-                                                    <td className="px-4 py-3 text-right">
-                                                        {mashup.deleted_at ? (
-                                                            <button onClick={() => handleRestoreMashup(mashup.id)} className="text-blue-400 hover:text-blue-300 p-1" title="Restaurar"><Undo2 className="w-4 h-4" /></button>
-                                                        ) : (
-                                                            <button onClick={() => handleDeleteMashup(mashup.id)} className="text-red-400 hover:text-red-300 p-1" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <Pagination links={allMashups.links} />
-                            </div>
-                        )}
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex gap-2 w-full md:w-auto">
+                                            <Button onClick={() => handleApprovePack(pack.id)} disabled={loading === pack.id} className="flex-1 bg-green-600 hover:bg-green-700">Aprobar</Button>
+                                            <Button onClick={() => handleRejectPack(pack.id)} disabled={loading === pack.id} variant="destructive" className="flex-1">Rechazar</Button>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    )}
 
-                        {/* USERS MANAGEMENT TAB */}
-                        {activeTab === 'users' && (
-                            <div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left text-sm text-gray-400">
-                                        <thead className="bg-gray-800 text-gray-200 uppercase text-xs">
-                                            <tr>
-                                                <th className="px-4 py-3">ID</th>
-                                                <th className="px-4 py-3">Usuario</th>
-                                                <th className="px-4 py-3">Email</th>
-                                                <th className="px-4 py-3">Rol</th>
-                                                <th className="px-4 py-3">Créditos</th>
-                                                <th className="px-4 py-3 text-right">Acciones</th>
+                    {/* MASHUPS MANAGEMENT TAB */}
+                    {activeTab === 'mashups' && (
+                        <div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm text-gray-400">
+                                    <thead className="bg-gray-800 text-gray-200 uppercase text-xs">
+                                        <tr>
+                                            <th className="px-4 py-3">ID</th>
+                                            <th className="px-4 py-3">Título</th>
+                                            <th className="px-4 py-3">Usuario</th>
+                                            <th className="px-4 py-3">Estado</th>
+                                            <th className="px-4 py-3">Fecha</th>
+                                            <th className="px-4 py-3 text-right">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-800">
+                                        {allMashups.data.map((mashup) => (
+                                            <tr key={mashup.id} className={`hover:bg-gray-800/30 ${mashup.deleted_at ? 'opacity-50 grayscale' : ''}`}>
+                                                <td className="px-4 py-3 font-mono text-xs text-gray-500">#{mashup.id}</td>
+                                                <td className="px-4 py-3 font-medium text-white">
+                                                    <div className="flex items-center gap-2">
+                                                        <button
+                                                            onClick={() => handlePlayPause(mashup)}
+                                                            disabled={!mashup.audio_url}
+                                                            className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors flex-shrink-0 ${!mashup.audio_url ? 'bg-gray-800 text-gray-600 cursor-not-allowed' : 'bg-gray-700 hover:bg-pink-600 text-white'}`}
+                                                        >
+                                                            {currentTrack?.id === mashup.id && isPlaying ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3 ml-0.5" />}
+                                                        </button>
+                                                        <span>{mashup.title}</span>
+                                                    </div>
+                                                    {mashup.deleted_at && <span className="ml-2 px-1.5 py-0.5 bg-red-900/50 text-red-400 text-[10px] rounded">ELIMINADO</span>}
+                                                </td>
+                                                <td className="px-4 py-3">{mashup.user.name}</td>
+                                                <td className="px-4 py-3">
+                                                    <span className={`px-2 py-0.5 rounded textxs ${mashup.status === 'approved' ? 'bg-green-900/30 text-green-400' :
+                                                        mashup.status === 'rejected' ? 'bg-red-900/30 text-red-400' :
+                                                            'bg-amber-900/30 text-amber-400'
+                                                        }`}>
+                                                        {mashup.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3">{new Date(mashup.created_at).toLocaleDateString()}</td>
+                                                <td className="px-4 py-3 text-right">
+                                                    {mashup.deleted_at ? (
+                                                        <button onClick={() => handleRestoreMashup(mashup.id)} className="text-blue-400 hover:text-blue-300 p-1" title="Restaurar"><Undo2 className="w-4 h-4" /></button>
+                                                    ) : (
+                                                        <button onClick={() => handleDeleteMashup(mashup.id)} className="text-red-400 hover:text-red-300 p-1" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
+                                                    )}
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-800">
-                                            {allUsers.data.map((user) => (
-                                                <tr key={user.id} className={`hover:bg-gray-800/30 ${user.deleted_at ? 'opacity-50 grayscale' : ''}`}>
-                                                    <td className="px-4 py-3 font-mono text-xs text-gray-500">#{user.id}</td>
-                                                    <td className="px-4 py-3 flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-[10px] font-bold text-white">
-                                                            {user.name.charAt(0)}
-                                                        </div>
-                                                        <span className="font-medium text-white">{user.name}</span>
-                                                        {user.deleted_at && <span className="px-1.5 py-0.5 bg-red-900/50 text-red-400 text-[10px] rounded">ELIMINADO</span>}
-                                                    </td>
-                                                    <td className="px-4 py-3">{user.email}</td>
-                                                    <td className="px-4 py-3">
-                                                        <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${user.role === 'admin' ? 'bg-purple-900/30 text-purple-400' : 'bg-gray-800 text-gray-400'}`}>
-                                                            {user.role}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-4 py-3 flex items-center gap-1">
-                                                        <Coins className="w-3 h-3 text-yellow-500" />
-                                                        {user.credits}
-                                                    </td>
-                                                    <td className="px-4 py-3 text-right">
-                                                        {user.deleted_at ? (
-                                                            <button onClick={() => handleRestoreUser(user.id)} className="text-blue-400 hover:text-blue-300 p-1" title="Restaurar"><Undo2 className="w-4 h-4" /></button>
-                                                        ) : (
-                                                            <button onClick={() => handleDeleteUser(user.id)} className="text-red-400 hover:text-red-300 p-1" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <Pagination links={allUsers.links} />
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
-                        )}
+                            <Pagination links={allMashups.links} />
+                        </div>
+                    )}
 
-                        {/* PACKS MANAGEMENT TAB */}
-                        {activeTab === 'packs' && (
-                            <div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left text-sm text-gray-400">
-                                        <thead className="bg-gray-800 text-gray-200 uppercase text-xs">
-                                            <tr>
-                                                <th className="px-4 py-3">ID</th>
-                                                <th className="px-4 py-3">Título</th>
-                                                <th className="px-4 py-3">Usuario</th>
-                                                <th className="px-4 py-3">Precio</th>
-                                                <th className="px-4 py-3">Contenido</th>
-                                                <th className="px-4 py-3">Fecha</th>
-                                                <th className="px-4 py-3 text-right">Acciones</th>
+                    {/* USERS MANAGEMENT TAB */}
+                    {activeTab === 'users' && (
+                        <div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm text-gray-400">
+                                    <thead className="bg-gray-800 text-gray-200 uppercase text-xs">
+                                        <tr>
+                                            <th className="px-4 py-3">ID</th>
+                                            <th className="px-4 py-3">Usuario</th>
+                                            <th className="px-4 py-3">Email</th>
+                                            <th className="px-4 py-3">Rol</th>
+                                            <th className="px-4 py-3">Créditos</th>
+                                            <th className="px-4 py-3 text-right">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-800">
+                                        {allUsers.data.map((user) => (
+                                            <tr key={user.id} className={`hover:bg-gray-800/30 ${user.deleted_at ? 'opacity-50 grayscale' : ''}`}>
+                                                <td className="px-4 py-3 font-mono text-xs text-gray-500">#{user.id}</td>
+                                                <td className="px-4 py-3 flex items-center gap-2">
+                                                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-[10px] font-bold text-white">
+                                                        {user.name.charAt(0)}
+                                                    </div>
+                                                    <span className="font-medium text-white">{user.name}</span>
+                                                    {user.deleted_at && <span className="px-1.5 py-0.5 bg-red-900/50 text-red-400 text-[10px] rounded">ELIMINADO</span>}
+                                                </td>
+                                                <td className="px-4 py-3">{user.email}</td>
+                                                <td className="px-4 py-3">
+                                                    <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold ${user.role === 'admin' ? 'bg-purple-900/30 text-purple-400' : 'bg-gray-800 text-gray-400'}`}>
+                                                        {user.role}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 flex items-center gap-1">
+                                                    <Coins className="w-3 h-3 text-yellow-500" />
+                                                    {user.credits}
+                                                </td>
+                                                <td className="px-4 py-3 text-right">
+                                                    {user.deleted_at ? (
+                                                        <button onClick={() => handleRestoreUser(user.id)} className="text-blue-400 hover:text-blue-300 p-1" title="Restaurar"><Undo2 className="w-4 h-4" /></button>
+                                                    ) : (
+                                                        <button onClick={() => handleDeleteUser(user.id)} className="text-red-400 hover:text-red-300 p-1" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
+                                                    )}
+                                                </td>
                                             </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-800">
-                                            {allPacks.data.map((pack) => (
-                                                <tr key={pack.id} className={`hover:bg-gray-800/30 ${pack.deleted_at ? 'opacity-50 grayscale' : ''}`}>
-                                                    <td className="px-4 py-3 font-mono text-xs text-gray-500">#{pack.id}</td>
-                                                    <td className="px-4 py-3 font-medium text-white">
-                                                        {pack.title}
-                                                        {pack.deleted_at && <span className="ml-2 px-1.5 py-0.5 bg-red-900/50 text-red-400 text-[10px] rounded">ELIMINADO</span>}
-                                                    </td>
-                                                    <td className="px-4 py-3">{pack.user.name}</td>
-                                                    <td className="px-4 py-3">{pack.price} Créditos</td>
-                                                    <td className="px-4 py-3">{pack.mashups_count} Mashups</td>
-                                                    <td className="px-4 py-3">{new Date(pack.created_at).toLocaleDateString()}</td>
-                                                    <td className="px-4 py-3 text-right">
-                                                        {pack.deleted_at ? (
-                                                            <button onClick={() => handleRestorePack(pack.id)} className="text-blue-400 hover:text-blue-300 p-1" title="Restaurar"><Undo2 className="w-4 h-4" /></button>
-                                                        ) : (
-                                                            <button onClick={() => handleDeletePack(pack.id)} className="text-red-400 hover:text-red-300 p-1" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
-                                                        )}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <Pagination links={allPacks.links} />
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
-                        )}
-                    </div>
+                            <Pagination links={allUsers.links} />
+                        </div>
+                    )}
+
+                    {/* PACKS MANAGEMENT TAB */}
+                    {activeTab === 'packs' && (
+                        <div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm text-gray-400">
+                                    <thead className="bg-gray-800 text-gray-200 uppercase text-xs">
+                                        <tr>
+                                            <th className="px-4 py-3">ID</th>
+                                            <th className="px-4 py-3">Título</th>
+                                            <th className="px-4 py-3">Usuario</th>
+                                            <th className="px-4 py-3">Precio</th>
+                                            <th className="px-4 py-3">Contenido</th>
+                                            <th className="px-4 py-3">Fecha</th>
+                                            <th className="px-4 py-3 text-right">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-800">
+                                        {allPacks.data.map((pack) => (
+                                            <tr key={pack.id} className={`hover:bg-gray-800/30 ${pack.deleted_at ? 'opacity-50 grayscale' : ''}`}>
+                                                <td className="px-4 py-3 font-mono text-xs text-gray-500">#{pack.id}</td>
+                                                <td className="px-4 py-3 font-medium text-white">
+                                                    {pack.title}
+                                                    {pack.deleted_at && <span className="ml-2 px-1.5 py-0.5 bg-red-900/50 text-red-400 text-[10px] rounded">ELIMINADO</span>}
+                                                </td>
+                                                <td className="px-4 py-3">{pack.user.name}</td>
+                                                <td className="px-4 py-3">{pack.price} Créditos</td>
+                                                <td className="px-4 py-3">{pack.mashups_count} Mashups</td>
+                                                <td className="px-4 py-3">{new Date(pack.created_at).toLocaleDateString()}</td>
+                                                <td className="px-4 py-3 text-right">
+                                                    {pack.deleted_at ? (
+                                                        <button onClick={() => handleRestorePack(pack.id)} className="text-blue-400 hover:text-blue-300 p-1" title="Restaurar"><Undo2 className="w-4 h-4" /></button>
+                                                    ) : (
+                                                        <button onClick={() => handleDeletePack(pack.id)} className="text-red-400 hover:text-red-300 p-1" title="Eliminar"><Trash2 className="w-4 h-4" /></button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <Pagination links={allPacks.links} />
+                        </div>
+                    )}
                 </div>
             </div>
+
         </>
     );
 }

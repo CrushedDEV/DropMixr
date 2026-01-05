@@ -18,7 +18,10 @@ class Pack extends Model
         'price',
         'is_public',
         'file_path',
+        'file_path',
         'file_size',
+        'status',
+        'is_approved',
     ];
 
     public function user()

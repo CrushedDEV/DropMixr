@@ -3,17 +3,17 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Queue\SerializesModels;
-use CapsulesCodes\InertiaMailable\Mail\Mailable;
-use CapsulesCodes\InertiaMailable\Mail\Mailables\Content;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
-
+use Illuminate\Queue\SerializesModels;
 
 class VerifyEmailCustom extends Mailable
 {
     use Queueable, SerializesModels;
 
     public string $verificationUrl;
+    public string $name;
 
     public function __construct(string $verificationUrl, string $name)
     {
@@ -23,14 +23,14 @@ class VerifyEmailCustom extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Verifica tu correo');
+        return new Envelope(subject: 'Verifica tu cuenta - DropMixr');
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'VerifyEmail',
-            props: [
+            view: 'emails.verify-email',
+            with: [
                 'url' => $this->verificationUrl,
                 'name' => $this->name
             ]

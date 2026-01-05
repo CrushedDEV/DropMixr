@@ -14,7 +14,7 @@ class CustomVerifyEmail extends BaseVerifyEmail
     {
         return URL::temporarySignedRoute(
             'verification.verify',
-            Carbon::now()->addMinutes(Config::get('auth.verification.expire', 60)),
+            Carbon::now()->addMinutes(30),
             ['id' => $notifiable->getKey(), 'hash' => sha1($notifiable->getEmailForVerification())]
         );
     }
@@ -30,5 +30,5 @@ class CustomVerifyEmail extends BaseVerifyEmail
         return (new VerifyEmailCustom($url, $name))
             ->to($notifiable->email, $name);
     }
-    
+
 }

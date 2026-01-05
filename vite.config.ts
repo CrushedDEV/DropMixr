@@ -14,6 +14,9 @@ export default defineConfig({
         react(),
         tailwindcss(),
     ],
+    ssr: {
+        noExternal: true,
+    },
     esbuild: {
         jsx: 'automatic',
     },

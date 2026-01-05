@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if ! [ -x "$(command -v docker-compose)" ]; then
-  echo 'Error: docker-compose is not installed.' >&2
+if ! docker compose version > /dev/null 2>&1; then
+  echo 'Error: docker compose is not installed.' >&2
   exit 1
 fi
 
@@ -29,7 +29,7 @@ fi
 echo "### Creating dummy certificate for $domains ..."
 path="/etc/letsencrypt/live/$domains"
 mkdir -p "$data_path/conf/live/$domains"
-docker-compose -f docker-compose.prod.yml run --rm --entrypoint "\
+docker compose -f docker-compose.prod.yml run --rm --entrypoint "\
   openssl req -x509 -nodes -newkey rsa:$rsa_key_size -days 1\
     -keyout '$path/privkey.pem' \
     -out '$path/fullchain.pem' \
@@ -37,11 +37,11 @@ docker-compose -f docker-compose.prod.yml run --rm --entrypoint "\
 echo
 
 echo "### Starting nginx ..."
-docker-compose -f docker-compose.prod.yml up --force-recreate -d webserver
+docker compose -f docker-compose.prod.yml up --force-recreate -d webserver
 echo
 
 echo "### Deleting dummy certificate for $domains ..."
-docker-compose -f docker-compose.prod.yml run --rm --entrypoint "\
+docker compose -f docker-compose.prod.yml run --rm --entrypoint "\
   rm -Rf /etc/letsencrypt/live/$domains && \
   rm -Rf /etc/letsencrypt/archive/$domains && \
   rm -Rf /etc/letsencrypt/renewal/$domains.conf" certbot

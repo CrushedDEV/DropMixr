@@ -38,7 +38,7 @@ Esta guía documenta los pasos necesarios para desplegar la aplicación DropMix 
 Ejecuta el siguiente comando para construir las imágenes y levantar los contenedores en segundo plano:
 
 ```bash
-docker-compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 Esto iniciará los siguientes servicios:
@@ -57,7 +57,7 @@ Si haces cambios en el código (git pull) o en la configuración, sigue estos pa
     ```
 2.  **Reconstruir y reiniciar**:
     ```bash
-    docker-compose -f docker-compose.prod.yml up -d --build
+    docker compose -f docker-compose.prod.yml up -d --build
     ```
     > Docker detectará los cambios y reconstruirá solo lo necesario.
 
@@ -65,27 +65,27 @@ Si haces cambios en el código (git pull) o en la configuración, sigue estos pa
 Si necesitas asegurarte de que se instalan todas las dependencias desde cero (útil si hay errores extraños de build):
 
 ```bash
-docker-compose -f docker-compose.prod.yml build --no-cache
-docker-compose -f docker-compose.prod.yml up -d --force-recreate
+docker compose -f docker-compose.prod.yml build --no-cache
+docker compose -f docker-compose.prod.yml up -d --force-recreate
 ```
 
 ### Ejecutar comandos de Artisan
 Para ejecutar cualquier comando de Laravel, usa `exec app`:
 ```bash
-docker-compose -f docker-compose.prod.yml exec app php artisan <comando>
+docker compose -f docker-compose.prod.yml exec app php artisan <comando>
 ```
 
 ### Limpiar Caché
 Si la configuración no se actualiza o hay errores extraños:
 ```bash
-docker-compose -f docker-compose.prod.yml exec app php artisan optimize:clear
+docker compose -f docker-compose.prod.yml exec app php artisan optimize:clear
 ```
 
 ### Dar Permisos de Administrador
 Para convertir a un usuario existente en administrador, utiliza el comando personalizado:
 
 ```bash
-docker-compose -f docker-compose.prod.yml exec app php artisan user:make-admin correo@ejemplo.com
+docker compose -f docker-compose.prod.yml exec app php artisan user:make-admin correo@ejemplo.com
 ```
 
 Este comando buscará al usuario por correo electrónico y le asignará el rol de 'admin'.
@@ -93,7 +93,7 @@ Este comando buscará al usuario por correo electrónico y le asignará el rol d
 ### Ver Logs
 Para ver los logs de la aplicación en tiempo real:
 ```bash
-docker-compose -f docker-compose.prod.yml logs -f app
+docker compose -f docker-compose.prod.yml logs -f app
 ```
 
 ## Solución de Problemas Comunes
@@ -102,7 +102,7 @@ docker-compose -f docker-compose.prod.yml logs -f app
 El usuario del servidor web (`www-data`) no tiene permisos para escribir en el archivo SQLite o la carpeta storage.
 **Solución:** Reinicia forzando la recreación de contenedores (el entrypoint arregla los permisos automáticamente):
 ```bash
-docker-compose -f docker-compose.prod.yml up -d --build --force-recreate
+docker compose -f docker-compose.prod.yml up -d --build --force-recreate
 ```
 
 ### Error: "permission denied ... /var/run/docker.sock"

@@ -14,6 +14,11 @@ const useIsAdmin = () => {
 
 const mainNavItems: NavItem[] = [
     {
+        title: 'Cómo funciona',
+        href: '/onboarding',
+        icon: FileCheck,
+    },
+    {
         title: 'Explorar',
         href: '/explore',
         icon: Compass,
@@ -22,11 +27,6 @@ const mainNavItems: NavItem[] = [
         title: 'Packs',
         href: '/packs',
         icon: Package,
-    },
-    {
-        title: 'Cómo funciona',
-        href: '/onboarding',
-        icon: FileCheck,
     },
     {
         title: 'Subir Mashup',

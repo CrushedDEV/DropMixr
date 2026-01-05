@@ -7,7 +7,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN npm run build
+RUN npm run build:ssr
 
 # Stage 2: Serve application with PHP
 FROM php:8.2-fpm
@@ -42,6 +42,7 @@ COPY . /var/www
 
 # Copy frontend assets from stage 1
 COPY --from=frontend /app/public/build /var/www/public/build
+COPY --from=frontend /app/bootstrap/ssr /var/www/bootstrap/ssr
 
 # Install dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader

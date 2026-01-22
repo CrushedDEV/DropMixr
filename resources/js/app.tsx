@@ -8,7 +8,7 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import { router } from '@inertiajs/react';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'DropMixr';
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

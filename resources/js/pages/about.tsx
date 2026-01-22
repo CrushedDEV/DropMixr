@@ -1,6 +1,6 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-import { Head } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Music, Heart, Globe, Sparkles, Zap, ArrowRight } from "lucide-react";
@@ -160,11 +160,20 @@ export default function About() {
                 Únete hoy y descubre por qué miles de DJs eligen DropMixr como su fuente principal de música.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white border-0">
-                  Crear Cuenta Gratis
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-500 hover:to-purple-500 text-white border-0"
+                  asChild
+                >
+                  <Link href="/register">Crear Cuenta Gratis</Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 hover:text-white">
-                  Explorar Mashups
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/20 text-white hover:bg-white/10 hover:text-white"
+                  asChild
+                >
+                  <Link href="/explore">Explorar Mashups</Link>
                 </Button>
               </div>
             </div>

@@ -9,13 +9,7 @@
 
         <p>Si no has sido tú, puedes ignorar este mensaje sin problemas. Tu cuenta sigue segura.</p>
 
-        <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
-            <tr>
-                <td align="center">
-                    <a href="{{ $url }}" class="button" target="_blank">Restablecer Contraseña</a>
-                </td>
-            </tr>
-        </table>
+        <a href="{{ $url }}" class="button" target="_blank">Restablecer Contraseña</a>
 
         <p>Este enlace expirará en <strong>60 minutos</strong> por seguridad.</p>
 

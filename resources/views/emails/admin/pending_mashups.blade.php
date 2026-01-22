@@ -1,16 +1,20 @@
-<x-mail::message>
-    # Tienes Mashups Pendientes
+@extends('emails.layout')
 
-    Hola Admin,
+@section('content')
+    <div style="text-align: center;">
+        <div class="icon-container">🎵</div>
+        <h1>Tienes Mashups Pendientes</h1>
 
-    Hay **{{ $count }}** nuevos mashups que han estado esperando aprobación por más de 30 minutos.
+        <p>Hola <strong>Admin</strong>,</p>
 
-    Por favor, revisa el panel de administración para aprobarlos o rechazarlos.
+        <p>Hay <strong>{{ $count }}</strong> nuevos mashups que han estado esperando aprobación por más de 30 minutos.</p>
 
-    <x-mail::button :url="$url">
-        Ir al Panel de Administración
-    </x-mail::button>
+        <p>Por favor, revisa el panel de administración para aprobarlos o rechazarlos.</p>
 
-    Gracias,<br>
-    {{ config('app.name') }}
-</x-mail::message>
+        <a href="{{ $url }}" class="button" target="_blank">Ir al Panel de Administración</a>
+
+        <div class="sub">
+            <p>Gracias por mantener la calidad de DropMixr.</p>
+        </div>
+    </div>
+@endsection

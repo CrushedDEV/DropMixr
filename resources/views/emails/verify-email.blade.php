@@ -13,13 +13,7 @@
         <p>Para activar tu cuenta y empezar a descargar y subir música, necesitamos confirmar que este es tu correo
             electrónico.</p>
 
-        <table width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation">
-            <tr>
-                <td align="center">
-                    <a href="{{ $url }}" class="button" target="_blank">Verificar Correo Electrónico</a>
-                </td>
-            </tr>
-        </table>
+        <a href="{{ $url }}" class="button" target="_blank">Verificar Correo Electrónico</a>
 
         <div class="sub">
             <p>Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:</p>

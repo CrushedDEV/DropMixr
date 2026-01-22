@@ -9,6 +9,12 @@ php artisan event:cache
 php artisan route:cache
 php artisan view:cache
 
+# Sync public assets from backup to volume
+if [ -d "/var/www/public_assets_backup" ]; then
+    mkdir -p /var/www/public/build
+    cp -rf /var/www/public_assets_backup/. /var/www/public/build/
+fi
+
 # Create SQLite database if it doesn't exist
 if [ ! -f /var/www/storage/database.sqlite ]; then
     touch /var/www/storage/database.sqlite

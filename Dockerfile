@@ -53,6 +53,7 @@ COPY . /var/www
 
 # Copy frontend assets from stage 2
 COPY --from=frontend /app/public/build /var/www/public/build
+COPY --from=frontend /app/public/build /var/www/public_assets_backup
 COPY --from=frontend /app/bootstrap/ssr /var/www/bootstrap/ssr
 
 # Install dependencies
